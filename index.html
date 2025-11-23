@@ -1,45 +1,17 @@
 <!doctype html>
 <html lang="id">
 <head>
+  <meta http-equiv="refresh" content="0; url=dashboard-guest.html" />
+  <title>Redirecting...</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login - Sarpras</title>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-    <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-800">Sistem Peminjaman</h1>
-      <p class="text-gray-600 mt-2">Sarana dan Prasarana Kampus</p>
-    </div>
-
-    <form id="loginForm" class="space-y-6">
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-        <input type="email" id="email" name="email" required
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-      </div>
-
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-        <input type="password" id="password" name="password" required
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-      </div>
-
-      <button type="submit"
-        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-        Masuk
-      </button>
-    </form>
-
-    <div class="mt-6 text-center text-sm text-gray-600">
-      Belum punya akun?
-      <a href="register.html" class="text-blue-600 hover:text-blue-800 font-medium">Daftar di sini</a>
-    </div>
-
-    <div id="errorMessage" class="mt-4 text-red-600 text-sm hidden"></div>
-  </div>
-
-  <script type="module" src="assets/js/auth.js"></script>
+<body>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=dashboard-guest.html" />
+    <p>Jika tidak diarahkan, <a href="dashboard-guest.html">klik di sini</a>.</p>
+  </noscript>
+  <script>
+    window.location.replace('dashboard-guest.html');
+  </script>
 </body>
 </html>

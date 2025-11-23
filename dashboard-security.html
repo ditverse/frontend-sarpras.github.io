@@ -27,7 +27,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Jadwal Peminjaman Aktif</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Jadwal Peminjaman Aktif (Belum Diverifikasi Kehadiran)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
@@ -40,6 +40,12 @@
             </div>
             <button onclick="loadJadwal()" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
                 Filter Jadwal
+            </button>
+        </div>
+
+        <div class="mb-6 flex justify-end gap-4">
+            <button onclick="window.location.href='riwayat-kehadiran.html'" class="bg-green-700 text-white py-2 px-4 rounded-lg hover:bg-green-900">
+                Lihat History Kehadiran
             </button>
         </div>
 
@@ -124,7 +130,7 @@
                 const startISO = new Date(start).toISOString();
                 const endISO = new Date(end).toISOString();
                 
-                const data = await apiCall(`/jadwal-aktif?start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endISO)}`);
+                const data = await apiCall(`/jadwal-aktif-belum-verifikasi?start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endISO)}`);
                 const tbody = document.getElementById('jadwalTable');
                 
                 if (data && data.length > 0) {

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat Kehadiran Peminjam - Security</title>
+  <link rel="stylesheet" href="assets/styles/security.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; }
+    .container { max-width: 900px; margin: 32px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { color: #2d5c8a; }
+    .section { margin-bottom: 32px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f0f4f8; }
+    .btn-back { background: #2d5c8a; color: #fff; border: none; padding: 10px 24px; border-radius: 4px; font-size: 1rem; cursor: pointer; margin-bottom: 24px; }
+    .btn-back:hover { background: #1b3a57; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="btn-back" onclick="window.location.href='dashboard-security.html'">&larr; Kembali ke Dashboard</button>
+    <h1>Riwayat Kehadiran Peminjam</h1>
+    <div class="section">
+      <table id="kehadiran-table">
+        <thead>
+          <tr>
+            <th>Ruangan</th>
+            <th>Tanggal</th>
+            <th>Peminjam</th>
+            <th>Status Kehadiran</th>
+            <th>Catatan</th>
+            <th>Waktu Verifikasi</th>
+          </tr>
+        </thead>
+        <tbody id="kehadiran-body"><tr><td colspan="6">Memuat data...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <script type="module">
+    const API_BASE = 'http://localhost:8000/api';
+    // Fetch riwayat kehadiran
+    fetch(`${API_BASE}/kehadiran-riwayat`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(r => r.json())
+      .then(data => {
+        const tbody = document.getElementById('kehadiran-body');
+        if (!Array.isArray(data) || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">Tidak ada riwayat kehadiran.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(k => `
+          <tr>
+            <td>${k.peminjaman?.ruangan?.nama_ruangan || '-'}</td>
+            <td>${k.peminjaman?.tanggal_mulai ? new Date(k.peminjaman.tanggal_mulai).toLocaleString() + ' s/d ' + new Date(k.peminjaman.tanggal_selesai).toLocaleString() : '-'}</td>
+            <td>${k.peminjaman?.peminjam?.nama || '-'}</td>
+            <td>${k.status_kehadiran || '-'}</td>
+            <td>${k.catatan || '-'}</td>
+            <td>${k.waktu_verifikasi ? new Date(k.waktu_verifikasi).toLocaleString() : '-'}</td>
+          </tr>
+        `).join('');
+      })
+      .catch(() => {
+        document.getElementById('kehadiran-body').innerHTML = '<tr><td colspan="6">Gagal memuat data.</td></tr>';
+      });
+  </script>
+</body>
+</html>

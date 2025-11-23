@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Guest - Sarpras</title>
+  <link rel="stylesheet" href="assets/styles/guest.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; }
+    .container { max-width: 900px; margin: 32px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { color: #2d5c8a; }
+    .section { margin-bottom: 32px; }
+    .btn-login { background: #2d5c8a; color: #fff; border: none; padding: 12px 32px; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+    .btn-login:hover { background: #1b3a57; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f0f4f8; }
+    .info-box { background: #eaf6ff; border-left: 4px solid #2d5c8a; padding: 16px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dashboard Guest</h1>
+    <div class="section" style="text-align:right">
+      <button class="btn-login" onclick="window.location.href='login.html'">Login</button>
+    </div>
+    <div class="section">
+      <h2>Info Umum</h2>
+      <div id="info-umum" class="info-box">Memuat info...</div>
+    </div>
+    <div class="section">
+      <h2>Jadwal Ruangan Dipinjam</h2>
+      <table id="jadwal-table">
+        <thead>
+          <tr><th>Ruangan</th><th>Mulai</th><th>Selesai</th><th>Peminjam</th></tr>
+        </thead>
+        <tbody id="jadwal-body"><tr><td colspan="4">Memuat data...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Daftar Ruangan</h2>
+      <table id="ruangan-table">
+        <thead>
+          <tr><th>Kode</th><th>Nama</th><th>Lokasi</th><th>Kapasitas</th></tr>
+        </thead>
+        <tbody id="ruangan-body"><tr><td colspan="4">Memuat data...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <script type="module">
+    const API_BASE = 'http://localhost:8000/api';
+    // Info Umum
+    fetch(`${API_BASE}/info`).then(r=>r.json()).then(data=>{
+      document.getElementById('info-umum').innerHTML = `
+        <b>${data.nama_instansi}</b><br>
+        ${data.alamat}<br>
+        Kontak: ${data.kontak}<br>
+        <small>${data.deskripsi}</small>
+      `;
+    }).catch(()=>{
+      document.getElementById('info-umum').innerText = 'Gagal memuat info.';
+    });
+    // Jadwal Ruangan Dipinjam
+    fetch(`${API_BASE}/jadwal-ruangan`).then(r=>r.json()).then(data=>{
+      const tbody = document.getElementById('jadwal-body');
+      if(!Array.isArray(data) || data.length===0) { tbody.innerHTML = '<tr><td colspan="4">Tidak ada jadwal aktif.</td></tr>'; return; }
+      tbody.innerHTML = data.map(j=>`<tr><td>${j.nama_ruangan||'-'}</td><td>${j.tanggal_mulai?new Date(j.tanggal_mulai).toLocaleString():''}</td><td>${j.tanggal_selesai?new Date(j.tanggal_selesai).toLocaleString():''}</td><td>${j.peminjam||'-'}</td></tr>`).join('');
+    }).catch(()=>{
+      document.getElementById('jadwal-body').innerHTML = '<tr><td colspan="4">Gagal memuat data.</td></tr>';
+    });
+    // Daftar Ruangan
+    fetch(`${API_BASE}/ruangan`).then(r=>r.json()).then(data=>{
+      const tbody = document.getElementById('ruangan-body');
+      if(!Array.isArray(data) || data.length===0) { tbody.innerHTML = '<tr><td colspan="4">Tidak ada ruangan.</td></tr>'; return; }
+      tbody.innerHTML = data.map(r=>`<tr><td>${r.kode_ruangan||'-'}</td><td>${r.nama_ruangan||'-'}</td><td>${r.lokasi||'-'}</td><td>${r.kapasitas||'-'}</td></tr>`).join('');
+    }).catch(()=>{
+      document.getElementById('ruangan-body').innerHTML = '<tr><td colspan="4">Gagal memuat data.</td></tr>';
+    });
+  </script>
+</body>
+</html>
