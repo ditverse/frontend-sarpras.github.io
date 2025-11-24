@@ -1,81 +1,182 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Guest - Sarpras</title>
-  <link rel="stylesheet" href="assets/styles/guest.css">
+  <title>Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; }
-    .container { max-width: 900px; margin: 32px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
-    h1 { color: #2d5c8a; }
-    .section { margin-bottom: 32px; }
-    .btn-login { background: #2d5c8a; color: #fff; border: none; padding: 12px 32px; border-radius: 4px; font-size: 1rem; cursor: pointer; }
-    .btn-login:hover { background: #1b3a57; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #f0f4f8; }
-    .info-box { background: #eaf6ff; border-left: 4px solid #2d5c8a; padding: 16px; margin-bottom: 16px; }
+    body { font-family: 'Inter', sans-serif; }
+    /* Utilitas tambahan untuk menyembunyikan scrollbar tapi tetap bisa di-scroll */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Dashboard Guest</h1>
-    <div class="section" style="text-align:right">
-      <button class="btn-login" onclick="window.location.href='login.html'">Login</button>
+
+<body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
+
+  <nav class="bg-white/95 backdrop-blur border-b border-orange-100 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-3">
+        <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras" class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Unit Sarana & Prasarana</p>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight">Universitas Logistik dan Bisnis Internasional</h1>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="window.location.href='jadwal-ruangan.html'"
+          class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">
+          Lihat Jadwal Lengkap
+        </button>
+        <button onclick="window.location.href='login.html'"
+          class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">
+          Login
+        </button>
+      </div>
     </div>
-    <div class="section">
-      <h2>Info Umum</h2>
-      <div id="info-umum" class="info-box">Memuat info...</div>
-    </div>
-    <div class="section">
-      <h2>Jadwal Ruangan Dipinjam</h2>
-      <table id="jadwal-table">
-        <thead>
-          <tr><th>Ruangan</th><th>Mulai</th><th>Selesai</th><th>Peminjam</th></tr>
-        </thead>
-        <tbody id="jadwal-body"><tr><td colspan="4">Memuat data...</td></tr></tbody>
-      </table>
-    </div>
-    <div class="section">
-      <h2>Daftar Ruangan</h2>
-      <table id="ruangan-table">
-        <thead>
-          <tr><th>Kode</th><th>Nama</th><th>Lokasi</th><th>Kapasitas</th></tr>
-        </thead>
-        <tbody id="ruangan-body"><tr><td colspan="4">Memuat data...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-  <script type="module">
-    const API_BASE = 'http://localhost:8000/api';
-    // Info Umum
-    fetch(`${API_BASE}/info`).then(r=>r.json()).then(data=>{
-      document.getElementById('info-umum').innerHTML = `
-        <b>${data.nama_instansi}</b><br>
-        ${data.alamat}<br>
-        Kontak: ${data.kontak}<br>
-        <small>${data.deskripsi}</small>
-      `;
-    }).catch(()=>{
-      document.getElementById('info-umum').innerText = 'Gagal memuat info.';
-    });
-    // Jadwal Ruangan Dipinjam
-    fetch(`${API_BASE}/jadwal-ruangan`).then(r=>r.json()).then(data=>{
-      const tbody = document.getElementById('jadwal-body');
-      if(!Array.isArray(data) || data.length===0) { tbody.innerHTML = '<tr><td colspan="4">Tidak ada jadwal aktif.</td></tr>'; return; }
-      tbody.innerHTML = data.map(j=>`<tr><td>${j.nama_ruangan||'-'}</td><td>${j.tanggal_mulai?new Date(j.tanggal_mulai).toLocaleString():''}</td><td>${j.tanggal_selesai?new Date(j.tanggal_selesai).toLocaleString():''}</td><td>${j.peminjam||'-'}</td></tr>`).join('');
-    }).catch(()=>{
-      document.getElementById('jadwal-body').innerHTML = '<tr><td colspan="4">Gagal memuat data.</td></tr>';
-    });
-    // Daftar Ruangan
-    fetch(`${API_BASE}/ruangan`).then(r=>r.json()).then(data=>{
-      const tbody = document.getElementById('ruangan-body');
-      if(!Array.isArray(data) || data.length===0) { tbody.innerHTML = '<tr><td colspan="4">Tidak ada ruangan.</td></tr>'; return; }
-      tbody.innerHTML = data.map(r=>`<tr><td>${r.kode_ruangan||'-'}</td><td>${r.nama_ruangan||'-'}</td><td>${r.lokasi||'-'}</td><td>${r.kapasitas||'-'}</td></tr>`).join('');
-    }).catch(()=>{
-      document.getElementById('ruangan-body').innerHTML = '<tr><td colspan="4">Gagal memuat data.</td></tr>';
-    });
-  </script>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+
+    <section>
+      <div class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
+        <div class="relative">
+          <p class="uppercase text-xs tracking-[0.4em] text-orange-200 mb-3 font-semibold">Selamat Datang</p>
+          <h2 class="text-3xl font-semibold leading-tight mb-4">Pantau ketersediaan ruangan & barang secara realtime</h2>
+          <p class="text-orange-50/90 text-sm mb-6 max-w-2xl">Web khusus yang memberikan ringkasan cepat mengenai penggunaan ruangan,
+            jadwal harian, serta daftar barang yang dapat dipinjam.</p>
+          <div class="flex flex-wrap gap-3 text-sm">
+            <span class="px-4 py-2 rounded-full bg-white/20 border border-white/40 backdrop-blur-sm font-semibold">Data langsung dari Sarpras</span>
+            <span class="px-4 py-2 rounded-full bg-white/20 border border-white/40 backdrop-blur-sm font-semibold">Update setiap hari</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid gap-6 lg:grid-cols-[3fr,2fr] items-stretch">
+      <div class="bg-white rounded-3xl shadow-sm border border-orange-100 overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-orange-100 flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-orange-50/60">
+          <div>
+            <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Kalender Aktivitas</p>
+            <h2 id="month-year-label" class="text-2xl font-bold text-gray-900 capitalize">Memuat...</h2>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="changeMonth(-1)" class="p-3 bg-white border border-orange-200 rounded-2xl hover:bg-orange-50 hover:shadow-sm text-orange-600 transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <button onclick="changeMonth(1)" class="p-3 bg-white border border-orange-200 rounded-2xl hover:bg-orange-50 hover:shadow-sm text-orange-600 transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 flex-1">
+          <div class="grid grid-cols-7 text-center mb-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            <span>Min</span>
+            <span>Sen</span>
+            <span>Sel</span>
+            <span>Rab</span>
+            <span>Kam</span>
+            <span>Jum</span>
+            <span>Sab</span>
+          </div>
+
+          <div id="calendar-grid" class="grid grid-cols-7 text-center gap-y-3 gap-x-2">
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-orange-100 flex flex-col gap-2">
+          <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Jadwal Harian</p>
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-gray-900">Agenda Tanggal Terpilih</h3>
+            <span id="selected-date-label" class="inline-flex flex-col items-center justify-center text-sm font-semibold text-orange-600 bg-orange-50 px-4 py-1.5 rounded-full border border-orange-100 text-center leading-tight min-w-[140px]">
+              Hari Ini
+            </span>
+          </div>
+          <p class="text-xs text-gray-500">Klik tanggal pada kalender untuk menampilkan detail kegiatan pada ruangan.</p>
+        </div>
+
+        <div id="jadwal-list-container" class="p-6 space-y-4 flex-1 overflow-y-auto no-scrollbar">
+          <p class="text-center text-gray-400 text-sm py-8 italic">Pilih tanggal di atas untuk melihat detail.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Direktori Fasilitas</p>
+          <h2 class="text-2xl font-bold text-gray-900">Akses ruang & barang tersedia</h2>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="bg-white rounded-3xl shadow-sm border border-orange-100 overflow-hidden">
+          <div class="p-6 border-b border-orange-100 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Ruangan</p>
+              <h3 class="text-lg font-semibold text-gray-900">Direktori ruangan yang dapat dipakai</h3>
+            </div>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-600 border border-orange-100">Live</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600">
+              <thead class="bg-orange-50/50 text-gray-700 uppercase font-semibold text-[11px] border-b border-orange-100 tracking-wider">
+                <tr>
+                  <th class="px-6 py-3">Kode</th>
+                  <th class="px-6 py-3">Nama Ruangan</th>
+                  <th class="px-6 py-3">Lokasi</th>
+                  <th class="px-6 py-3 text-center">Kapasitas</th>
+                </tr>
+              </thead>
+              <tbody id="ruangan-body" class="divide-y divide-gray-100">
+                <tr>
+                  <td colspan="4" class="px-6 py-5 text-center text-gray-400 text-sm">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-orange-100 overflow-hidden">
+          <div class="p-6 border-b border-orange-100 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Inventaris</p>
+              <h3 class="text-lg font-semibold text-gray-900">Barang yang bisa dipinjam</h3>
+            </div>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-600 border border-orange-100">Terupdate</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600">
+              <thead class="bg-orange-50/50 text-gray-700 uppercase font-semibold text-[11px] border-b border-orange-100 tracking-wider">
+                <tr>
+                  <th class="px-6 py-3">Kode</th>
+                  <th class="px-6 py-3">Nama Barang</th>
+                  <th class="px-6 py-3 text-center">Total</th>
+                  <th class="px-6 py-3 text-center">Tersedia</th>
+                </tr>
+              </thead>
+              <tbody id="barang-body" class="divide-y divide-gray-100">
+                <tr>
+                  <td colspan="4" class="px-6 py-5 text-center text-gray-400 text-sm">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script type="module" src="assets/js/dashboard-guest.js"></script>
 </body>
 </html>
