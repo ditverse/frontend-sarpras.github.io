@@ -5,76 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pengajuan Peminjaman - Sistem Peminjaman Sarpras</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="dashboard-mahasiswa.html" class="text-xl font-bold text-gray-800">Sistem Peminjaman Sarpras</a>
+<body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
+    <nav class="bg-white/95 backdrop-blur border-b border-orange-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras" class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Sarana & Prasarana</p>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">Form Pengajuan</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button onclick="logout()" class="text-red-600 hover:text-red-800">Logout</button>
-                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="dashboard-mahasiswa.html" class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">
+                    Kembali ke Dashboard
+                </a>
+                <button onclick="logout()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">
+                    Logout
+                </button>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Form Pengajuan Peminjaman</h2>
+    <main class="max-w-5xl mx-auto px-6 py-10 space-y-10">
+        <section class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
+            <div class="relative space-y-4">
+                <p class="uppercase text-xs tracking-[0.4em] text-orange-100 font-semibold">Pengajuan Ruangan/Barang</p>
+                <h2 class="text-3xl font-semibold leading-tight">Lengkapi data pengajuan sebelum mengirim</h2>
+                <p class="text-orange-50/90 text-sm max-w-2xl">Harap pastikan jadwal, keperluan, serta surat digital telah disiapkan. Admin Sarpras akan memeriksa permohonanmu dalam waktu maksimal 2 x 24 jam.</p>
+                <div class="grid gap-3 md:grid-cols-3 text-sm font-semibold">
+                    <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
+                        <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 1</p>
+                        <p>Isi data ruangan</p>
+                    </div>
+                    <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
+                        <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 2</p>
+                        <p>Upload surat digital</p>
+                    </div>
+                    <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
+                        <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 3</p>
+                        <p>Tambahkan daftar barang</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <form id="peminjamanForm" class="bg-white rounded-lg shadow p-6 space-y-6">
-            <div>
-                <label for="ruangan_id" class="block text-sm font-medium text-gray-700 mb-2">Ruangan (Opsional)</label>
-                <select id="ruangan_id" name="ruangan_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                    <option value="">Pilih Ruangan (Opsional)</option>
-                </select>
+        <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-8 space-y-8">
+            <div class="flex flex-col gap-2">
+                <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Formulir Pengajuan</p>
+                <h3 class="text-2xl font-bold text-gray-900">Detail peminjaman yang akan diajukan</h3>
             </div>
 
-            <div>
-                <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700 mb-2">Tanggal & Waktu Mulai *</label>
-                <input type="datetime-local" id="tanggal_mulai" name="tanggal_mulai" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-            </div>
+            <form id="peminjamanForm" class="space-y-6">
+                <div class="grid gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="ruangan_id" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Ruangan (Opsional)</label>
+                        <select id="ruangan_id" name="ruangan_id" class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                            <option value="">Pilih Ruangan (Opsional)</option>
+                        </select>
+                    </div>
+                    <div class="bg-orange-50/70 border border-orange-100 rounded-2xl p-4 text-sm text-gray-600">
+                        Ruangan kosong? Kamu tetap dapat meminjam barang tanpa memilih ruangan. Pastikan surat digital menyebutkan lokasi penggunaan.
+                    </div>
+                </div>
 
-            <div>
-                <label for="tanggal_selesai" class="block text-sm font-medium text-gray-700 mb-2">Tanggal & Waktu Selesai *</label>
-                <input type="datetime-local" id="tanggal_selesai" name="tanggal_selesai" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-            </div>
+                <div class="grid gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="tanggal_mulai" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Tanggal & Waktu Mulai *</label>
+                        <input type="datetime-local" id="tanggal_mulai" name="tanggal_mulai" required class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                    </div>
+                    <div>
+                        <label for="tanggal_selesai" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Tanggal & Waktu Selesai *</label>
+                        <input type="datetime-local" id="tanggal_selesai" name="tanggal_selesai" required class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                    </div>
+                </div>
 
-            <div>
-                <label for="keperluan" class="block text-sm font-medium text-gray-700 mb-2">Keperluan *</label>
-                <textarea id="keperluan" name="keperluan" rows="4" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg"></textarea>
-            </div>
+                <div>
+                    <label for="keperluan" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Keperluan *</label>
+                    <textarea id="keperluan" name="keperluan" rows="4" required class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white"></textarea>
+                </div>
 
-            <div>
-                <label for="surat_digital_url" class="block text-sm font-medium text-gray-700 mb-2">URL Surat Digital *</label>
-                <input type="url" id="surat_digital_url" name="surat_digital_url" required
-                    placeholder="https://..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                <p class="text-sm text-gray-500 mt-1">Upload surat ke Supabase Storage dan masukkan URL-nya di sini</p>
-            </div>
+                <div>
+                    <label for="surat_digital_url" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">URL Surat Digital *</label>
+                    <input type="url" id="surat_digital_url" name="surat_digital_url" required placeholder="https://..." class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                    <p class="text-xs text-gray-500 mt-2">Unggah surat ke layanan penyimpanan (mis. Supabase Storage) lalu tempelkan URL akses publik di sini.</p>
+                </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Barang yang Dipinjam (Opsional)</label>
-                <div id="barangList" class="space-y-2 mb-2"></div>
-                <button type="button" onclick="addBarangItem()" class="text-blue-600 hover:text-blue-800 text-sm">+ Tambah Barang</button>
-            </div>
+                <div class="space-y-4">
+                    <label class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Barang yang Dipinjam (Opsional)</label>
+                    <div id="barangList" class="space-y-3"></div>
+                    <button type="button" onclick="addBarangItem()" class="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
+                        <span class="w-5 h-5 rounded-full border border-orange-200 flex items-center justify-center">+</span>
+                        Tambah Barang
+                    </button>
+                </div>
 
-            <div class="flex space-x-4">
-                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                    Ajukan Peminjaman
-                </button>
-                <a href="dashboard-mahasiswa.html" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 text-center">
-                    Batal
-                </a>
-            </div>
+                <div class="flex flex-col gap-3 md:flex-row">
+                    <button type="submit" class="flex-1 bg-orange-500 text-white py-3 rounded-2xl font-semibold hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 transition shadow-lg shadow-orange-200/60">
+                        Ajukan Peminjaman
+                    </button>
+                    <a href="dashboard-mahasiswa.html" class="flex-1 bg-white text-gray-700 py-3 rounded-2xl font-semibold border border-orange-100 text-center hover:bg-orange-50 transition">
+                        Batal & Kembali
+                    </a>
+                </div>
 
-            <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
-        </form>
-    </div>
+                <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
+            </form>
+        </section>
+    </main>
 
     <script src="assets/js/api.legacy.js"></script>
     <script>
@@ -113,15 +158,17 @@
             
             const container = document.getElementById('barangList');
             const div = document.createElement('div');
-            div.className = 'flex space-x-2';
+            div.className = 'flex flex-col gap-3 md:flex-row md:items-center md:gap-3';
             div.innerHTML = `
-                <select name="barang_${index}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg" required>
+                <select name="barang_${index}" class="flex-1 px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white" required>
                     <option value="">Pilih Barang</option>
                     ${barangs.map(b => `<option value="${b.id}">${b.kode_barang} - ${b.nama_barang} (Tersedia: ${b.jumlah_tersedia})</option>`).join('')}
                 </select>
                 <input type="number" name="jumlah_${index}" min="1" value="1" required
-                    class="w-24 px-4 py-2 border border-gray-300 rounded-lg" placeholder="Jumlah">
-                <button type="button" onclick="removeBarangItem(${index})" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Hapus</button>
+                    class="w-full md:w-32 px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white" placeholder="Jumlah">
+                <button type="button" onclick="removeBarangItem(${index})" class="px-4 py-3 rounded-2xl border border-red-100 text-red-600 font-semibold hover:bg-red-50 transition">
+                    Hapus
+                </button>
             `;
             div.id = `barang-item-${index}`;
             container.appendChild(div);

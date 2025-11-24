@@ -5,49 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Mahasiswa - Sistem Peminjaman Sarpras</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-800">Sistem Peminjaman Sarpras</h1>
+<body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
+    <nav class="bg-white/95 backdrop-blur border-b border-orange-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras" class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Sarana & Prasarana</p>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">Mahasiswa</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span id="userName" class="text-gray-700"></span>
-                    <button onclick="logout()" class="text-red-600 hover:text-red-800">Logout</button>
-                </div>
+            </div>
+            <div class="flex items-center gap-4 text-sm font-medium">
+                <span id="userName" class="text-gray-600 bg-white border border-orange-100 px-4 py-2 rounded-xl shadow-sm"></span>
+                <button onclick="logout()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">Logout</button>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Dashboard Mahasiswa</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <a href="pengajuan-peminjaman.html" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Ajukan Peminjaman</h3>
-                <p class="text-gray-600">Buat pengajuan peminjaman ruangan atau barang</p>
-            </a>
-            <a href="jadwal-ruangan.html" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Jadwal Ruangan</h3>
-                <p class="text-gray-600">Lihat ketersediaan ruangan</p>
-            </a>
-            <a href="riwayat-peminjaman.html" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Riwayat Peminjaman</h3>
-                <p class="text-gray-600">Lihat status pengajuan Anda</p>
-            </a>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Peminjaman Terbaru</h3>
-            <div id="peminjamanList" class="space-y-4">
-                <p class="text-gray-500">Memuat data...</p>
+    <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+        <section class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
+            <div class="relative grid gap-6 md:grid-cols-[2fr,1fr] items-center">
+                <div>
+                    <p class="uppercase text-xs tracking-[0.4em] text-orange-100 mb-3 font-semibold">Halo, Mahasiswa</p>
+                    <h2 class="text-3xl font-semibold leading-tight mb-4">Kelola kebutuhan sarpras dengan cepat</h2>
+                    <p class="text-orange-50/90 text-sm max-w-2xl">Pengajuan peminjaman ruangan dan barang kini bisa dilakukan secara digital. Pantau status permohonanmu, cek jadwal ruangan, serta lihat riwayat peminjaman tanpa perlu ke loket.</p>
+                </div>
+                <div class="bg-white/15 rounded-3xl p-6 border border-white/30 backdrop-blur space-y-2 text-sm">
+                    <p class="uppercase tracking-[0.35em] text-orange-100 text-xs">Akses Cepat</p>
+                    <div class="grid grid-cols-2 gap-3 text-white font-semibold text-sm">
+                        <span class="px-3 py-2 rounded-2xl border border-white/40 text-center">Pengajuan</span>
+                        <span class="px-3 py-2 rounded-2xl border border-white/40 text-center">Jadwal</span>
+                        <span class="px-3 py-2 rounded-2xl border border-white/40 text-center">Riwayat</span>
+                        <span class="px-3 py-2 rounded-2xl border border-white/40 text-center">Status</span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
+
+        <section class="grid gap-6 lg:grid-cols-3">
+            <a href="pengajuan-peminjaman.html" class="bg-white border border-orange-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition flex flex-col gap-3">
+                <span class="inline-flex w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 items-center justify-center font-semibold">1</span>
+                <h3 class="text-lg font-semibold text-gray-900">Ajukan Peminjaman</h3>
+                <p class="text-sm text-gray-500">Buat permintaan ruangan atau barang secara online.</p>
+                <span class="text-sm font-semibold text-orange-600 mt-auto">Mulai pengajuan →</span>
+            </a>
+            <a href="jadwal-ruangan.html" class="bg-white border border-orange-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition flex flex-col gap-3">
+                <span class="inline-flex w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 items-center justify-center font-semibold">2</span>
+                <h3 class="text-lg font-semibold text-gray-900">Jadwal Ruangan</h3>
+                <p class="text-sm text-gray-500">Lihat ketersediaan terbaru untuk ruangan kampus.</p>
+                <span class="text-sm font-semibold text-orange-600 mt-auto">Cek jadwal →</span>
+            </a>
+            <a href="riwayat-peminjaman.html" class="bg-white border border-orange-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition flex flex-col gap-3">
+                <span class="inline-flex w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 items-center justify-center font-semibold">3</span>
+                <h3 class="text-lg font-semibold text-gray-900">Riwayat Peminjaman</h3>
+                <p class="text-sm text-gray-500">Pantau status permohonan terakhir yang kamu buat.</p>
+                <span class="text-sm font-semibold text-orange-600 mt-auto">Lihat riwayat →</span>
+            </a>
+        </section>
+
+        <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-6">
+            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Peminjaman Terbaru</p>
+                    <h3 class="text-xl font-semibold text-gray-900">Aktivitas 30 hari terakhir</h3>
+                </div>
+                <div class="text-xs font-semibold rounded-full px-4 py-1.5 bg-orange-50 text-orange-600 border border-orange-100">
+                    Maks 5 peminjaman ditampilkan
+                </div>
+            </div>
+            <div id="peminjamanList" class="space-y-4">
+                <p class="text-gray-400 text-sm">Memuat data...</p>
+            </div>
+        </section>
+    </main>
 
     <script src="assets/js/api.legacy.js"></script>
     <script>
@@ -62,16 +100,19 @@
             try {
                 const data = await apiCall('/peminjaman/me');
                 const container = document.getElementById('peminjamanList');
-                
+
                 if (data && data.length > 0) {
                     container.innerHTML = data.slice(0, 5).map(p => `
-                        <div class="border-l-4 ${getStatusColor(p.status)} p-4 bg-gray-50">
-                            <div class="flex justify-between">
+                        <div class="border border-orange-100 rounded-2xl p-4 bg-orange-50/40 hover:bg-orange-50 transition-colors">
+                            <div class="flex justify-between gap-4">
                                 <div>
-                                    <p class="font-semibold">${p.ruangan ? p.ruangan.nama_ruangan : 'Barang'}</p>
-                                    <p class="text-sm text-gray-600">${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(p.tanggal_selesai).toLocaleDateString('id-ID')}</p>
+                                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold mb-1">${p.ruangan ? p.ruangan.kode_ruangan : 'Barang'}</p>
+                                    <p class="font-semibold text-gray-900">${p.ruangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang'}</p>
+                                    <p class="text-xs text-gray-500 mt-1">${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}</p>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-sm ${getStatusBadgeColor(p.status)}">${p.status}</span>
+                                <span class="px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusBadgeColor(p.status)}">
+                                    ${p.status}
+                                </span>
                             </div>
                         </div>
                     `).join('');
@@ -83,24 +124,19 @@
             }
         }
 
-        function getStatusColor(status) {
-            const colors = {
-                'PENDING': 'border-yellow-500',
-                'APPROVED': 'border-green-500',
-                'REJECTED': 'border-red-500',
-                'FINISHED': 'border-blue-500'
-            };
-            return colors[status] || 'border-gray-500';
-        }
-
         function getStatusBadgeColor(status) {
             const colors = {
-                'PENDING': 'bg-yellow-100 text-yellow-800',
-                'APPROVED': 'bg-green-100 text-green-800',
-                'REJECTED': 'bg-red-100 text-red-800',
-                'FINISHED': 'bg-blue-100 text-blue-800'
+                'PENDING': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                'APPROVED': 'bg-green-50 text-green-700 border-green-200',
+                'REJECTED': 'bg-red-50 text-red-700 border-red-200',
+                'FINISHED': 'bg-blue-50 text-blue-700 border-blue-200'
             };
-            return colors[status] || 'bg-gray-100 text-gray-800';
+            return colors[status] || 'bg-gray-50 text-gray-700 border-gray-200';
+        }
+
+        function formatDateRange(start, end) {
+            const formatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            return `${formatter.format(new Date(start))} - ${formatter.format(new Date(end))}`;
         }
 
         function logout() {
