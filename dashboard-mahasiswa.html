@@ -71,18 +71,27 @@
             </a>
         </section>
 
-        <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-6">
-            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
+        <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-8">
+            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-8">
                 <div>
                     <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Peminjaman Terbaru</p>
-                    <h3 class="text-xl font-semibold text-gray-900">Aktivitas 30 hari terakhir</h3>
+                    <h3 class="text-2xl font-bold text-gray-900">Aktivitas 30 hari terakhir</h3>
                 </div>
                 <div class="text-xs font-semibold rounded-full px-4 py-1.5 bg-orange-50 text-orange-600 border border-orange-100">
                     Maks 5 peminjaman ditampilkan
                 </div>
             </div>
             <div id="peminjamanList" class="space-y-4">
-                <p class="text-gray-400 text-sm">Memuat data...</p>
+                <div class="flex items-center justify-center py-12">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-gray-400 text-sm">Memuat data...</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -102,25 +111,86 @@
                 const container = document.getElementById('peminjamanList');
 
                 if (data && data.length > 0) {
-                    container.innerHTML = data.slice(0, 5).map(p => `
-                        <div class="border border-orange-100 rounded-2xl p-4 bg-orange-50/40 hover:bg-orange-50 transition-colors">
-                            <div class="flex justify-between gap-4">
-                                <div>
-                                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold mb-1">${p.ruangan ? p.ruangan.kode_ruangan : 'Barang'}</p>
-                                    <p class="font-semibold text-gray-900">${p.ruangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang'}</p>
-                                    <p class="text-xs text-gray-500 mt-1">${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}</p>
+                    container.innerHTML = data.slice(0, 5).map(p => {
+                        const statusColor = getStatusBadgeColor(p.status);
+                        const borderColor = getStatusBorderColor(p.status);
+                        const icon = p.ruangan ? 
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>' :
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>';
+                        
+                        return `
+                        <div class="bg-white border-l-4 ${borderColor} border-r border-t border-b border-orange-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group">
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                <div class="flex-1 space-y-3">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 border ${p.status === 'PENDING' ? 'bg-yellow-50 border-yellow-200 text-yellow-600' : p.status === 'APPROVED' ? 'bg-green-50 border-green-200 text-green-600' : p.status === 'REJECTED' ? 'bg-red-50 border-red-200 text-red-600' : p.status === 'FINISHED' ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-gray-50 border-gray-200 text-gray-600'}">
+                                            ${icon}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                                <p class="text-xs uppercase tracking-widest text-orange-500 font-bold">${p.ruangan ? p.ruangan.kode_ruangan : 'BARANG'}</p>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${statusColor} whitespace-nowrap">
+                                                    ${p.status}
+                                                </span>
+                                            </div>
+                                            <h4 class="text-lg font-bold text-gray-900 mb-1">${p.ruangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang'}</h4>
+                                            ${p.keperluan ? `<p class="text-sm text-gray-600 line-clamp-2">${p.keperluan}</p>` : ''}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid gap-3 md:grid-cols-2 text-sm">
+                                        <div class="flex items-center gap-2 text-gray-600">
+                                            <svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <span class="text-xs">${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}</span>
+                                        </div>
+                                        ${p.barang && p.barang.length > 0 ? `
+                                            <div class="flex items-center gap-2 text-gray-600">
+                                                <svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                                </svg>
+                                                <span class="text-xs">${p.barang.length} jenis barang</span>
+                                            </div>
+                                        ` : ''}
+                                    </div>
                                 </div>
-                                <span class="px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusBadgeColor(p.status)}">
-                                    ${p.status}
-                                </span>
+                                
+                                <div class="flex md:flex-col gap-2 md:items-end">
+                                    <a href="riwayat-peminjaman.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-orange-200 text-orange-600 text-xs font-semibold hover:bg-orange-50 transition whitespace-nowrap">
+                                        <span>Detail</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
                 } else {
-                    container.innerHTML = '<p class="text-gray-500">Belum ada peminjaman</p>';
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 font-medium mb-2">Belum ada peminjaman</p>
+                            <p class="text-gray-400 text-sm mb-6">Mulai dengan mengajukan peminjaman ruangan atau barang.</p>
+                            <a href="pengajuan-peminjaman.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-2xl font-semibold hover:bg-orange-600 transition shadow-lg shadow-orange-200/60">
+                                Ajukan Peminjaman
+                            </a>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Error loading peminjaman:', error);
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <p class="text-red-600 text-sm">Error memuat data. Silakan refresh halaman.</p>
+                    </div>
+                `;
             }
         }
 
@@ -134,9 +204,29 @@
             return colors[status] || 'bg-gray-50 text-gray-700 border-gray-200';
         }
 
+        function getStatusBorderColor(status) {
+            const colors = {
+                'PENDING': 'border-yellow-400',
+                'APPROVED': 'border-green-400',
+                'REJECTED': 'border-red-400',
+                'FINISHED': 'border-blue-400'
+            };
+            return colors[status] || 'border-gray-400';
+        }
+
         function formatDateRange(start, end) {
-            const formatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-            return `${formatter.format(new Date(start))} - ${formatter.format(new Date(end))}`;
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const startStr = startDate.toLocaleDateString('id-ID', options);
+            const endStr = endDate.toLocaleDateString('id-ID', options);
+            
+            // Jika tanggal sama, hanya tampilkan sekali
+            if (startDate.toDateString() === endDate.toDateString()) {
+                return `${startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} ${startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+            }
+            
+            return `${startStr} - ${endStr}`;
         }
 
         function logout() {

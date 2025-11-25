@@ -6,10 +6,16 @@
     <title>Pengajuan Peminjaman - Sistem Peminjaman Sarpras</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Style tambahan agar input flatpickr pas dengan desainmu */
+        .flatpickr-calendar { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
@@ -18,7 +24,7 @@
             <div class="flex items-center gap-3">
                 <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras" class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
                 <div>
-                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Sarana & Prasarana</p>
+                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Unit Sarana & Prasarana</p>
                     <h1 class="text-xl font-bold text-gray-900 tracking-tight">Form Pengajuan</h1>
                 </div>
             </div>
@@ -35,26 +41,26 @@
 
     <main class="max-w-5xl mx-auto px-6 py-10 space-y-10">
         <section class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
-            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
-            <div class="relative space-y-4">
-                <p class="uppercase text-xs tracking-[0.4em] text-orange-100 font-semibold">Pengajuan Ruangan/Barang</p>
-                <h2 class="text-3xl font-semibold leading-tight">Lengkapi data pengajuan sebelum mengirim</h2>
-                <p class="text-orange-50/90 text-sm max-w-2xl">Harap pastikan jadwal, keperluan, serta surat digital telah disiapkan. Admin Sarpras akan memeriksa permohonanmu dalam waktu maksimal 2 x 24 jam.</p>
-                <div class="grid gap-3 md:grid-cols-3 text-sm font-semibold">
-                    <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
-                        <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 1</p>
-                        <p>Isi data ruangan</p>
-                    </div>
-                    <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
-                        <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 2</p>
-                        <p>Upload surat digital</p>
-                    </div>
-                    <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
-                        <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 3</p>
-                        <p>Tambahkan daftar barang</p>
-                    </div>
-                </div>
-            </div>
+             <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
+             <div class="relative space-y-4">
+                 <p class="uppercase text-xs tracking-[0.4em] text-orange-100 font-semibold">Pengajuan Ruangan/Barang</p>
+                 <h2 class="text-3xl font-semibold leading-tight">Lengkapi data pengajuan sebelum mengirim</h2>
+                 <p class="text-orange-50/90 text-sm max-w-2xl">Harap pastikan jadwal, keperluan, serta surat digital telah disiapkan. Admin Sarpras akan memeriksa permohonanmu dalam waktu maksimal 2 x 24 jam.</p>
+                 <div class="grid gap-3 md:grid-cols-3 text-sm font-semibold">
+                     <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
+                         <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 1</p>
+                         <p>Isi data ruangan</p>
+                     </div>
+                     <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
+                         <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 2</p>
+                         <p>Upload surat digital</p>
+                     </div>
+                     <div class="bg-white/15 border border-white/30 rounded-2xl px-4 py-3 backdrop-blur">
+                         <p class="text-orange-100/90 text-xs uppercase tracking-[0.35em] mb-1">Langkah 3</p>
+                         <p>Tambahkan daftar barang</p>
+                     </div>
+                 </div>
+             </div>
         </section>
 
         <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-8 space-y-8">
@@ -79,11 +85,11 @@
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>
                         <label for="tanggal_mulai" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Tanggal & Waktu Mulai *</label>
-                        <input type="datetime-local" id="tanggal_mulai" name="tanggal_mulai" required class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                        <input type="text" id="tanggal_mulai" name="tanggal_mulai" required placeholder="Pilih tanggal & jam..." class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
                     </div>
                     <div>
                         <label for="tanggal_selesai" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Tanggal & Waktu Selesai *</label>
-                        <input type="datetime-local" id="tanggal_selesai" name="tanggal_selesai" required class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                        <input type="text" id="tanggal_selesai" name="tanggal_selesai" required placeholder="Pilih tanggal & jam..." class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
                     </div>
                 </div>
 
@@ -121,15 +127,36 @@
         </section>
     </main>
 
-    <script src="assets/js/api.legacy.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script> <script src="assets/js/api.legacy.js"></script>
     <script>
         checkAuth();
         
+        // --- 4. CONFIGURASI TANGGAL & JAM DISINI ---
+        // Ini akan mengubah input biasa menjadi datepicker keren
+        // Format Tampil ke User: d-m-Y H:i (25-11-2025 14:00) - 24 Jam tanpa AM/PM
+        // Format Kirim ke Server: Y-m-d H:i (Agar mudah diolah JS Date)
+        
+        const dateConfig = {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i", // Format value asli (biar aman masuk database/JS)
+            altInput: true,          // Aktifkan input alternatif untuk tampilan user
+            altFormat: "d-m-Y H:i",  // Format yang DILIHAT user (Tanpa AM/PM, format Indo)
+            time_24hr: true,         // Wajib true untuk menghilangkan AM/PM
+            locale: "id",            // Bahasa Indonesia (Sen, Sel, Rab, dst)
+            minDate: "today"         // Opsional: Tidak boleh pilih tanggal kemarin
+        };
+
+        flatpickr("#tanggal_mulai", dateConfig);
+        flatpickr("#tanggal_selesai", dateConfig);
+        // -------------------------------------------
+
         let barangItems = [];
         let ruangans = [];
         let barangs = [];
 
         async function loadRuangan() {
+            // ... (kode sama) ...
             try {
                 ruangans = await apiCall('/ruangan');
                 const select = document.getElementById('ruangan_id');
@@ -145,6 +172,7 @@
         }
 
         async function loadBarang() {
+            // ... (kode sama) ...
             try {
                 barangs = await apiCall('/barang');
             } catch (error) {
@@ -153,6 +181,7 @@
         }
 
         function addBarangItem() {
+            // ... (kode sama) ...
             const index = barangItems.length;
             barangItems.push({ barang_id: '', jumlah: 1 });
             
@@ -175,6 +204,7 @@
         }
 
         function removeBarangItem(index) {
+            // ... (kode sama) ...
             const item = document.getElementById(`barang-item-${index}`);
             if (item) {
                 item.remove();
@@ -200,6 +230,8 @@
                 }
             }
 
+            // Note: Karena pakai flatpickr dengan altInput, formData akan mengambil value dari input hidden
+            // yang formatnya sudah kita set "Y-m-d H:i". Jadi new Date() aman membacanya.
             const tanggalMulai = new Date(formData.get('tanggal_mulai')).toISOString();
             const tanggalSelesai = new Date(formData.get('tanggal_selesai')).toISOString();
 
