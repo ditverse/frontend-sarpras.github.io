@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,26 +8,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
+
 <body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
     <nav class="bg-white/95 backdrop-blur border-b border-orange-100 sticky top-0 z-40 shadow-sm">
         <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div class="flex items-center gap-3">
-                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras" class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
+                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras"
+                    class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
                 <div>
-                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Unit Sarana & Prasarana</p>
+                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Unit Sarana & Prasarana
+                    </p>
                     <h1 class="text-xl font-bold text-gray-900 tracking-tight">Riwayat Peminjaman</h1>
                 </div>
             </div>
             <div class="flex gap-3">
-                <a href="dashboard-mahasiswa.html" class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">
+                <a href="dashboard-mahasiswa.html"
+                    class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">
                     Kembali ke Dashboard
                 </a>
-                <button onclick="logout()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">
+                <button onclick="logout()"
+                    class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">
                     Logout
                 </button>
             </div>
@@ -34,12 +49,15 @@
     </nav>
 
     <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
-        <section class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
-            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
+        <section
+            class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 pointer-events-none"
+                style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
             <div class="relative space-y-4">
                 <p class="uppercase text-xs tracking-[0.4em] text-orange-100 font-semibold">Riwayat & Status</p>
                 <h2 class="text-3xl font-semibold leading-tight">Pantau semua pengajuan peminjamanmu</h2>
-                <p class="text-orange-50/90 text-sm max-w-2xl">Lihat status verifikasi, catatan admin, serta detail lengkap setiap permohonan yang pernah kamu ajukan. Semua data tersimpan rapi di sini.</p>
+                <p class="text-orange-50/90 text-sm max-w-2xl">Lihat status verifikasi, catatan admin, serta detail
+                    lengkap setiap permohonan yang pernah kamu ajukan. Semua data tersimpan rapi di sini.</p>
             </div>
         </section>
 
@@ -49,7 +67,8 @@
                     <p class="text-xs uppercase tracking-[0.35em] text-orange-500 font-semibold">Daftar Pengajuan</p>
                     <h3 class="text-2xl font-bold text-gray-900">Semua riwayat peminjaman</h3>
                 </div>
-                <span id="totalCount" class="text-sm font-semibold rounded-full px-4 py-1.5 bg-orange-50 text-orange-600 border border-orange-100">
+                <span id="totalCount"
+                    class="text-sm font-semibold rounded-full px-4 py-1.5 bg-orange-50 text-orange-600 border border-orange-100">
                     0 pengajuan
                 </span>
             </div>
@@ -78,73 +97,107 @@
                 const data = await apiCall('/peminjaman/me');
                 const container = document.getElementById('peminjamanList');
                 const totalCount = document.getElementById('totalCount');
-                
+
                 if (data && data.length > 0) {
                     totalCount.textContent = `${data.length} pengajuan`;
                     container.innerHTML = data.map(p => {
                         const statusColor = getStatusBadgeColor(p.status);
                         const borderColor = getStatusBorderColor(p.status);
-                        
+
+                        // Determine loan type based on available data
+                        const hasRuangan = !!p.ruangan;
+                        const hasBarang = p.barang && p.barang.length > 0;
+
+                        // Set title based on loan type combination
+                        let title, subtitle;
+                        if (hasRuangan && hasBarang) {
+                            title = 'Peminjaman Ruangan & Barang';
+                            subtitle = p.ruangan.nama_ruangan;
+                        } else if (hasRuangan) {
+                            title = 'Peminjaman Ruangan';
+                            subtitle = p.ruangan.nama_ruangan;
+                        } else {
+                            title = 'Peminjaman Barang';
+                            subtitle = 'Inventaris Kampus';
+                        }
+
+                        // Icon: use room icon if has ruangan, otherwise use box/barang icon
+                        const icon = hasRuangan ?
+                            `<svg class="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>` :
+                            `<svg class="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>`;
+
                         return `
-                        <div class="bg-white rounded-3xl shadow-sm border-l-4 ${borderColor} border-r border-t border-b border-orange-100 p-6 hover:shadow-md transition">
-                            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                                <div class="flex-1 space-y-3">
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <h3 class="text-lg font-bold text-gray-900">
-                                            ${p.ruangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang'}
-                                        </h3>
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColor} border">
-                                            ${p.status}
-                                        </span>
+                        <div class="bg-white rounded-3xl shadow-sm border-l-4 ${borderColor} border-r border-t border-b border-orange-100 p-6 hover:shadow-md transition group">
+                            <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                                <div class="flex items-start gap-4 flex-1">
+                                    <div class="p-3 bg-orange-50 rounded-2xl border border-orange-100 group-hover:bg-orange-100 transition-colors">
+                                        ${icon}
                                     </div>
-                                    
-                                    <div class="space-y-2 text-sm">
-                                        <div class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span class="text-gray-600">${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}</span>
+                                    <div class="space-y-3 flex-1">
+                                        <div>
+                                            <div class="flex flex-wrap items-center gap-3 mb-1">
+                                                <h3 class="text-lg font-bold text-gray-900">${title}</h3>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${statusColor} border">
+                                                    ${p.status}
+                                                </span>
+                                            </div>
+                                            <p class="text-sm font-medium text-gray-600">${subtitle}</p>
                                         </div>
                                         
-                                        <div class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                            <span class="text-gray-600"><strong>Keperluan:</strong> ${p.keperluan}</span>
-                                        </div>
-                                        
-                                        ${p.barang && p.barang.length > 0 ? `
-                                            <div class="flex items-start gap-2">
-                                                <svg class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                        <div class="space-y-2 text-sm border-t border-dashed border-gray-100 pt-3">
+                                            <div class="flex items-start gap-2.5">
+                                                <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
-                                                <div class="text-gray-600">
-                                                    <strong>Barang:</strong> ${p.barang.map(b => `${b.barang.nama_barang} (${b.jumlah} unit)`).join(', ')}
+                                                <span class="text-gray-600 font-medium">${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}</span>
+                                            </div>
+                                            
+                                            <div class="flex items-start gap-2.5">
+                                                <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                                <span class="text-gray-600"><span class="text-gray-400">Keperluan:</span> ${p.keperluan}</span>
+                                            </div>
+                                            
+                                            ${p.barang && p.barang.length > 0 ? `
+                                                <div class="flex items-start gap-2.5">
+                                                    <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                                    </svg>
+                                                    <div class="text-gray-600">
+                                                        <span class="text-gray-400">Barang:</span> ${p.barang.map(b => `${b.barang.nama_barang} (${b.jumlah})`).join(', ')}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ` : ''}
-                                        
-                                        ${p.catatan_verifikasi ? `
-                                            <div class="bg-orange-50 border border-orange-100 rounded-2xl p-3 mt-3">
-                                                <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Catatan Admin</p>
-                                                <p class="text-sm text-gray-700">${p.catatan_verifikasi}</p>
-                                            </div>
-                                        ` : ''}
+                                            ` : ''}
+                                            
+                                            ${p.catatan_verifikasi ? `
+                                                <div class="bg-red-50 border border-red-100 rounded-xl p-3 mt-2 flex gap-3">
+                                                    <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                    <div>
+                                                        <p class="text-xs font-bold text-red-600 uppercase tracking-wider mb-0.5">Catatan Admin</p>
+                                                        <p class="text-sm text-gray-700">${p.catatan_verifikasi}</p>
+                                                    </div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="flex flex-col gap-2 md:items-end">
-                                    ${p.surat_digital_url ? `
+                                <div class="flex flex-col gap-3 md:items-end md:min-w-[140px]">
+                                    ${p.path_surat_digital ? `
                                         <button type="button"
-                                            onclick="openSurat(${p.id})"
-                                            class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-orange-200 text-orange-600 text-sm font-semibold hover:bg-orange-50 transition whitespace-nowrap">
+                                            onclick="openSurat('${p.kode_peminjaman}')"
+                                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-orange-200 text-orange-700 bg-orange-50 text-sm font-semibold hover:bg-orange-100 hover:border-orange-300 transition shadow-sm">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                             </svg>
                                             Lihat Surat
                                         </button>
                                     ` : `
-                                        <span class="text-xs text-gray-500 italic">Belum ada surat digital</span>
+                                        <div class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-center">
+                                            <span class="text-xs text-gray-400 font-medium italic">Surat belum diupload</span>
+                                        </div>
                                     `}
                                 </div>
                             </div>
@@ -218,4 +271,5 @@
         loadPeminjaman();
     </script>
 </body>
+
 </html>

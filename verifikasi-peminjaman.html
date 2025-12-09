@@ -1,217 +1,423 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Peminjaman - Sistem Peminjaman Sarpras</title>
+    <title>Verifikasi Peminjaman - Admin Sarpras</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="sarpras.html" class="text-xl font-bold text-gray-800">Sistem Peminjaman Sarpras</a>
+
+<body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
+
+    <nav class="bg-white/95 backdrop-blur border-b border-orange-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras"
+                    class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Admin Panel</p>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">Verifikasi Peminjaman</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button onclick="logout()" class="text-red-600 hover:text-red-800">Logout</button>
-                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="sarpras.html"
+                    class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">
+                    Kembali ke Dashboard
+                </a>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Verifikasi Peminjaman</h2>
+    <main class="max-w-6xl mx-auto px-6 py-10">
 
-        <div id="peminjamanDetail" class="bg-white rounded-lg shadow p-6 mb-6">
-            <p class="text-gray-500">Memuat data...</p>
+        <section class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold text-orange-500 uppercase tracking-widest mb-1 block">Tugas
+                        Verifikasi</span>
+                    <h2 id="pageTitle" class="text-3xl font-bold text-gray-900">Memuat...</h2>
+                    <p id="pageSubtitle" class="text-gray-500 mt-1">...</p>
+                </div>
+            </div>
+        </section>
+
+        <div id="loadingState" class="bg-white rounded-3xl p-12 text-center border border-orange-100 shadow-sm">
+            <div
+                class="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4">
+            </div>
+            <p class="text-gray-500 font-medium">Mengambil data dari sistem...</p>
         </div>
 
-        <div id="pendingWrapper" class="bg-white rounded-lg shadow p-6 mb-6 hidden">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Pilih Pengajuan Pending</h3>
-            <div id="pendingList" class="space-y-4">
-                <p class="text-gray-500">Memuat daftar pending...</p>
+        <div id="listView" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-2xl border border-orange-100 flex items-center gap-3 shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">Menampilkan antrian pending</p>
+                    <p class="text-xs text-gray-500">Pilih salah satu item untuk melakukan verifikasi.</p>
+                </div>
+            </div>
+
+            <div id="pendingListContainer" class="grid gap-4">
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tindakan Verifikasi</h3>
-            <form id="verifikasiForm">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select id="status" name="status" required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                        <option value="">Pilih Status</option>
-                        <option value="APPROVED">Setujui</option>
-                        <option value="REJECTED">Tolak</option>
-                    </select>
+        <div id="detailView" class="hidden grid gap-8 lg:grid-cols-[2fr,1fr] items-start">
+
+            <div class="space-y-6">
+                <div class="bg-white rounded-3xl shadow-sm border border-orange-100 overflow-hidden">
+                    <div
+                        class="bg-orange-50/50 px-8 py-6 border-b border-orange-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Aset yang
+                                diajukan</span>
+                            <h3 id="detailRuangan" class="text-2xl font-bold text-gray-900 mt-1">-</h3>
+                        </div>
+                        <span id="detailStatusBadge"
+                            class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-wide self-start md:self-center">
+                            Loading
+                        </span>
+                    </div>
+
+                    <div class="p-8 space-y-8">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Informasi
+                                    Peminjam</p>
+                                <p id="detailPeminjam" class="text-lg font-semibold text-gray-900">-</p>
+                                <p id="detailEmail" class="text-sm text-gray-500">-</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Jadwal
+                                    Peminjaman</p>
+                                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 inline-block">
+                                    <p id="detailWaktu" class="text-sm font-medium text-gray-800 font-mono">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Keperluan</p>
+                                <p id="detailKeperluan" class="text-gray-700 leading-relaxed">-</p>
+                            </div>
+                        </div>
+
+                        <div id="sectionBarang" class="hidden pl-14">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Item Tambahan</p>
+                            <ul id="listBarang" class="space-y-2"></ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Verifikasi</label>
-                    <textarea id="catatan" name="catatan" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></textarea>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-orange-100 p-8">
+                    <h4 class="text-lg font-bold text-gray-900 mb-4">Dokumen Pendukung</h4>
+                    <div id="suratWrapper">
+                        <p class="text-gray-500 italic text-sm">Memeriksa ketersediaan surat...</p>
+                    </div>
                 </div>
-                <div class="flex space-x-4">
-                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                        Simpan Verifikasi
-                    </button>
-                    <a href="sarpras.html" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 text-center">
-                        Kembali
-                    </a>
+            </div>
+
+            <div class="space-y-6 lg:sticky lg:top-24">
+                <div class="bg-white rounded-3xl shadow-lg shadow-orange-100 border border-orange-100 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Keputusan Verifikasi</h3>
+
+                    <form id="verifikasiForm" class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tindakan</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="status" value="APPROVED" class="peer sr-only" required>
+                                    <div
+                                        class="text-center py-3 px-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 peer-checked:bg-green-50 peer-checked:border-green-200 peer-checked:text-green-700 transition-all font-medium text-sm">
+                                        Setujui
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="status" value="REJECTED" class="peer sr-only" required>
+                                    <div
+                                        class="text-center py-3 px-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 peer-checked:bg-red-50 peer-checked:border-red-200 peer-checked:text-red-700 transition-all font-medium text-sm">
+                                        Tolak
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="catatan"
+                                class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Catatan
+                                Admin</label>
+                            <textarea id="catatan" name="catatan" rows="4"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-gray-50 focus:bg-white text-sm"
+                                placeholder="Berikan alasan atau instruksi tambahan..."></textarea>
+                        </div>
+
+                        <div id="errorMessage"
+                            class="text-red-600 text-sm hidden bg-red-50 p-3 rounded-lg border border-red-100"></div>
+
+                        <button type="submit"
+                            class="w-full bg-orange-500 text-white py-3.5 rounded-xl font-bold hover:bg-orange-600 transition shadow-lg shadow-orange-200/50 mt-2">
+                            Simpan Keputusan
+                        </button>
+                    </form>
                 </div>
-            </form>
-            <div id="errorMessage" class="mt-4 text-red-600 text-sm hidden"></div>
+
+                <div class="text-center">
+                    <a href="verifikasi-peminjaman.html"
+                        class="text-sm text-gray-500 hover:text-orange-600 font-medium">Batal & Kembali ke Daftar</a>
+                </div>
+            </div>
+
         </div>
-    </div>
+    </main>
 
     <script src="assets/js/api.legacy.js"></script>
     <script>
         checkAuth();
 
+        // Elements
+        const pageTitle = document.getElementById('pageTitle');
+        const pageSubtitle = document.getElementById('pageSubtitle');
+        const loadingState = document.getElementById('loadingState');
+        const listView = document.getElementById('listView');
+        const detailView = document.getElementById('detailView');
+        const pendingListContainer = document.getElementById('pendingListContainer');
+
+        // URL Params
         const urlParams = new URLSearchParams(window.location.search);
-        const peminjamanId = urlParams.get('id');
-        const detailContainer = document.getElementById('peminjamanDetail');
-        const formElement = document.getElementById('verifikasiForm');
-        const infoBox = document.getElementById('errorMessage');
+        const currentId = urlParams.get('id');
 
-        const pendingWrapper = document.getElementById('pendingWrapper');
-        const pendingList = document.getElementById('pendingList');
-
-        if (!peminjamanId) {
-            formElement.classList.add('hidden');
-            detailContainer.innerHTML = `
-                <div class="text-center py-8">
-                    <p class="text-gray-600">Silakan pilih pengajuan yang ingin diverifikasi.</p>
-                    <p class="text-gray-600 mt-2">Daftar pengajuan pending ditampilkan di bawah.</p>
-                </div>
-            `;
-            pendingWrapper.classList.remove('hidden');
-            loadPendingList();
+        // Main Init
+        if (currentId) {
+            initDetailView(currentId);
         } else {
-            loadPeminjaman();
+            initListView();
         }
 
-        async function loadPeminjaman() {
-            try {
-                const data = await apiCall(`/peminjaman/${peminjamanId}`);
-                const container = document.getElementById('peminjamanDetail');
-                
-                container.innerHTML = `
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Detail Peminjaman</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-sm text-gray-600">Ruangan</p>
-                                    <p class="font-medium">${data.ruangan ? data.ruangan.nama_ruangan : 'Tidak ada'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Peminjam</p>
-                                    <p class="font-medium">${data.peminjam ? data.peminjam.nama : 'N/A'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Tanggal Mulai</p>
-                                    <p class="font-medium">${new Date(data.tanggal_mulai).toLocaleString('id-ID')}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Tanggal Selesai</p>
-                                    <p class="font-medium">${new Date(data.tanggal_selesai).toLocaleString('id-ID')}</p>
-                                </div>
-                                <div class="col-span-2">
-                                    <p class="text-sm text-gray-600">Keperluan</p>
-                                    <p class="font-medium">${data.keperluan}</p>
-                                </div>
-                                ${data.barang && data.barang.length > 0 ? `
-                                    <div class="col-span-2">
-                                        <p class="text-sm text-gray-600">Barang yang Dipinjam</p>
-                                        <ul class="list-disc list-inside">
-                                            ${data.barang.map(b => `<li>${b.barang.nama_barang} - ${b.jumlah} unit</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                ` : ''}
-                                <div class="col-span-2">
-                                    <p class="text-sm text-gray-600">Surat Digital</p>
-                                    ${data.surat_digital_url ? `
-                                        <button type="button" onclick="openSurat(${peminjamanId})" class="text-blue-600 hover:text-blue-800 underline">
-                                            Lihat Surat
-                                        </button>
-                                    ` : `<span class="text-gray-400 text-sm italic">Belum ada</span>`}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error loading peminjaman:', error);
-            }
-        }
+        // --- Logic: List View ---
+        async function initListView() {
+            pageTitle.textContent = "Daftar Antrian";
+            pageSubtitle.textContent = "Semua pengajuan yang menunggu persetujuan";
+            loadingState.classList.remove('hidden');
+            listView.classList.add('hidden');
+            detailView.classList.add('hidden');
 
-        formElement.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const status = document.getElementById('status').value;
-            const catatan = document.getElementById('catatan').value;
-
-            try {
-                await apiCall(`/peminjaman/${peminjamanId}/verifikasi`, {
-                    method: 'POST',
-                    body: JSON.stringify({ status, catatan_verifikasi: catatan })
-                });
-                
-                alert('Verifikasi berhasil disimpan!');
-                window.location.href = 'sarpras.html';
-            } catch (error) {
-                infoBox.textContent = error.message;
-                infoBox.classList.remove('hidden');
-            }
-        });
-
-        async function loadPendingList() {
             try {
                 const data = await apiCall('/peminjaman/pending');
-                if (!data || data.length === 0) {
-                    pendingList.innerHTML = '<p class="text-gray-500">Tidak ada pengajuan pending.</p>';
-                    return;
-                }
+                loadingState.classList.add('hidden');
+                listView.classList.remove('hidden');
 
-                pendingList.innerHTML = data.map(p => `
-                    <div class="border-l-4 border-yellow-500 p-4 bg-gray-50 flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold">${p.ruangan ? p.ruangan.nama_ruangan : 'Barang'}</p>
-                            <p class="text-sm text-gray-600">
-                                ${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(p.tanggal_selesai).toLocaleDateString('id-ID')}
-                            </p>
-                            <p class="text-sm text-gray-600">Peminjam: ${p.peminjam ? p.peminjam.nama : 'N/A'}</p>
+                if (data && data.length > 0) {
+                    pendingListContainer.innerHTML = data.map(p => {
+                        const icon = p.ruangan ?
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>' :
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>';
+
+                        return `
+                        <a href="verifikasi-peminjaman.html?id=${p.kode_peminjaman}" class="block bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-md hover:border-orange-200 transition group">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 border border-orange-100 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                                        ${icon}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-900">${p.ruangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang'}</h4>
+                                        <p class="text-sm text-gray-500">${p.peminjam ? p.peminjam.nama : 'Unknown'}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right hidden md:block">
+                                    <span class="text-xs font-mono text-gray-400 block mb-1">Tanggal Mulai</span>
+                                    <span class="text-sm font-semibold text-gray-800">${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')}</span>
+                                </div>
+                                <div class="text-orange-500 group-hover:translate-x-1 transition-transform">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </div>
+                            </div>
+                        </a>
+                        `;
+                    }).join('');
+                } else {
+                    pendingListContainer.innerHTML = `
+                        <div class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
+                            <p class="text-gray-500">Tidak ada pengajuan yang perlu diverifikasi.</p>
                         </div>
-                        <button
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                            onclick="window.location.href='verifikasi-peminjaman.html?id=${p.id}'">
-                            Review
-                        </button>
-                    </div>
-                `).join('');
+                    `;
+                }
             } catch (error) {
-                pendingList.innerHTML = `<p class="text-red-600">Gagal memuat daftar pending: ${error.message}</p>`;
+                pendingListContainer.innerHTML = `<p class="text-red-500 text-center">Gagal memuat data: ${error.message}</p>`;
+                loadingState.classList.add('hidden');
+                listView.classList.remove('hidden');
             }
         }
+
+        // --- Logic: Detail View ---
+        async function initDetailView(id) {
+            pageTitle.textContent = "Detail Pengajuan";
+            pageSubtitle.textContent = `ID Referensi: #${id}`;
+            loadingState.classList.remove('hidden');
+            listView.classList.add('hidden');
+            detailView.classList.add('hidden');
+
+            try {
+                const data = await apiCall(`/peminjaman/${id}`);
+
+                // Populate Data
+                document.getElementById('detailRuangan').textContent = data.ruangan ? data.ruangan.nama_ruangan : 'Peminjaman Barang';
+                document.getElementById('detailStatusBadge').textContent = data.status;
+
+                // Set Badge Color
+                const badge = document.getElementById('detailStatusBadge');
+                if (data.status === 'PENDING') badge.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-200 uppercase tracking-wide";
+                else if (data.status === 'APPROVED') badge.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200 uppercase tracking-wide";
+                else badge.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200 uppercase tracking-wide";
+
+                document.getElementById('detailPeminjam').textContent = data.peminjam ? data.peminjam.nama : 'N/A';
+                document.getElementById('detailEmail').textContent = data.peminjam ? data.peminjam.email : '';
+                document.getElementById('detailWaktu').textContent = `${new Date(data.tanggal_mulai).toLocaleString('id-ID')} — ${new Date(data.tanggal_selesai).toLocaleString('id-ID')}`;
+                document.getElementById('detailKeperluan').textContent = data.keperluan || '-';
+
+                // List Barang
+                if (data.barang && data.barang.length > 0) {
+                    document.getElementById('sectionBarang').classList.remove('hidden');
+                    document.getElementById('listBarang').innerHTML = data.barang.map(b => `
+                        <li class="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+                            <span class="font-semibold">${b.barang.nama_barang}</span>
+                            <span class="text-gray-400 mx-1">|</span>
+                            <span>${b.jumlah} unit</span>
+                        </li>
+                    `).join('');
+                }
+
+                // Surat Digital Logic
+                const suratWrapper = document.getElementById('suratWrapper');
+                if (data.surat_digital_url) {
+                    // Cek URL surat sebenarnya (Signed URL)
+                    try {
+                        const suratData = await apiCall(`/peminjaman/${id}/surat`);
+                        if (suratData && suratData.signed_url) {
+                            suratWrapper.innerHTML = `
+                                <a href="${suratData.signed_url}" target="_blank" class="flex items-center gap-3 p-4 border border-orange-200 bg-orange-50 rounded-xl hover:bg-orange-100 transition group">
+                                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-red-500 shadow-sm">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-bold text-gray-900">Surat Pengajuan.pdf</p>
+                                        <p class="text-xs text-gray-500 group-hover:text-orange-700">Klik untuk melihat dokumen</p>
+                                    </div>
+                                    <svg class="w-5 h-5 text-gray-400 group-hover:text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                </a>
+                            `;
+                        } else {
+                            suratWrapper.innerHTML = '<div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-500">File surat tidak dapat diakses.</div>';
+                        }
+                    } catch (e) {
+                        suratWrapper.innerHTML = '<div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-500">Gagal memuat link surat.</div>';
+                    }
+                } else {
+                    suratWrapper.innerHTML = '<div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-500 italic">Tidak ada surat digital dilampirkan.</div>';
+                }
+
+                loadingState.classList.add('hidden');
+                detailView.classList.remove('hidden');
+
+            } catch (error) {
+                loadingState.innerHTML = `<p class="text-red-500 font-medium">Error: ${error.message}</p> <a href="verifikasi-peminjaman.html" class="text-sm text-blue-600 underline mt-2 inline-block">Kembali</a>`;
+            }
+        }
+
+        // --- Handle Form Submit ---
+        document.getElementById('verifikasiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorBox = document.getElementById('errorMessage');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            // Ambil data
+            const status = document.querySelector('input[name="status"]:checked')?.value;
+            const catatan = document.getElementById('catatan').value;
+
+            if (!status) {
+                alert("Pilih status Setujui atau Tolak terlebih dahulu.");
+                return;
+            }
+
+            errorBox.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+
+            try {
+                await apiCall(`/peminjaman/${currentId}/verifikasi`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        status: status,
+                        catatan_verifikasi: catatan
+                    })
+                });
+
+                alert('Verifikasi berhasil disimpan!');
+                window.location.href = 'sarpras.html'; // Redirect ke dashboard setelah sukses
+
+            } catch (error) {
+                errorBox.textContent = error.message;
+                errorBox.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan Keputusan';
+            }
+        });
 
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = 'index.html';
         }
-
-        async function openSurat(id) {
-            try {
-                const data = await apiCall(`/peminjaman/${id}/surat`);
-                if (data && data.signed_url) {
-                    window.open(data.signed_url, '_blank');
-                } else {
-                    alert('Surat tidak tersedia.');
-                }
-            } catch (error) {
-                alert(`Gagal membuka surat: ${error.message}`);
-            }
-        }
-
     </script>
 </body>
+
 </html>

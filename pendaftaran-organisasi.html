@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Organisasi - Sistem Peminjaman Sarpras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-emerald-50 to-emerald-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Pendaftaran Organisasi Kampus</h1>
+            <p class="text-gray-600 mt-2 text-sm">Daftarkan HMJ / UKM / BEM / MPM agar dapat menggunakan sistem peminjaman sarpras.</p>
+        </div>
+
+        <form id="orgRegisterForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kode Organisasi *</label>
+                <input type="text" id="kodeOrganisasi" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    placeholder="Contoh: HMJ-IF, UKM-MUSIK">
+                <p class="text-xs text-gray-400 mt-1">Kode ini akan digunakan saat mendaftarkan akun pengguna yang terkait.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Organisasi *</label>
+                <input type="text" id="namaOrganisasi" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Organisasi *</label>
+                <select id="jenisOrganisasi" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm bg-white">
+                    <option value="">Pilih jenis</option>
+                    <option value="HMJ">HMJ</option>
+                    <option value="UKM">UKM</option>
+                    <option value="BEM">BEM</option>
+                    <option value="MPM">MPM</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kontak Organisasi (opsional)</label>
+                <input type="text" id="kontakOrganisasi"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    placeholder="No WhatsApp / email pengurus">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-emerald-600 text-white py-2.5 px-4 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition text-sm font-semibold">
+                Daftarkan Organisasi
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-gray-600">
+            Ingin langsung mendaftarkan akun?
+            <a href="register.html" class="text-emerald-600 hover:text-emerald-800 font-medium">Kembali ke halaman daftar akun</a>
+        </div>
+
+        <div id="orgMessageBox" class="mt-4 text-sm hidden"></div>
+    </div>
+
+    <script src="assets/js/api.legacy.js"></script>
+    <script>
+        const orgForm = document.getElementById('orgRegisterForm');
+        const orgMessageBox = document.getElementById('orgMessageBox');
+
+        orgForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                kode_organisasi: document.getElementById('kodeOrganisasi').value.trim(),
+                nama: document.getElementById('namaOrganisasi').value.trim(),
+                jenis_organisasi: document.getElementById('jenisOrganisasi').value,
+                kontak: document.getElementById('kontakOrganisasi').value.trim() || null
+            };
+
+            orgMessageBox.classList.add('hidden');
+
+            try {
+                await apiCall('/organisasi', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                orgMessageBox.textContent = 'Organisasi berhasil didaftarkan. Gunakan kode organisasi ini saat mendaftarkan akun.';
+                orgMessageBox.className = 'mt-4 text-sm text-emerald-600';
+                orgMessageBox.classList.remove('hidden');
+
+                orgForm.reset();
+            } catch (error) {
+                orgMessageBox.textContent = error.message || 'Pendaftaran organisasi gagal.';
+                orgMessageBox.className = 'mt-4 text-sm text-red-600';
+                orgMessageBox.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
+
+

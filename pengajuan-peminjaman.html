@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,44 +10,63 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
         /* Style agar time picker rapi */
-        .flatpickr-time { border-top: none !important; } 
+        .flatpickr-time {
+            border-top: none !important;
+        }
     </style>
 </head>
+
 <body class="bg-orange-50 text-gray-800 min-h-screen pb-12">
     <nav class="bg-white/95 backdrop-blur border-b border-orange-100 sticky top-0 z-40 shadow-sm">
         <div class="max-w-5xl mx-auto px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div class="flex items-center gap-3">
-                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras" class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
+                <img src="https://raw.githubusercontent.com/saripudin14/img/refs/heads/main/logo.png" alt="Logo Sarpras"
+                    class="w-12 h-12 rounded-2xl border border-orange-100 shadow-lg shadow-orange-200/70 object-contain bg-white/70 p-2">
                 <div>
-                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Unit Sarana & Prasarana</p>
+                    <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Unit Sarana & Prasarana
+                    </p>
                     <h1 class="text-xl font-bold text-gray-900 tracking-tight">Form Pengajuan</h1>
                 </div>
             </div>
             <div class="flex gap-3">
-                <a href="dashboard-mahasiswa.html" class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">Kembali</a>
-                <button onclick="logout()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">Logout</button>
+                <a href="dashboard-mahasiswa.html"
+                    class="px-4 py-2 rounded-lg border border-orange-200 text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition">Kembali</a>
+                <button onclick="logout()"
+                    class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-md shadow-orange-200/80">Logout</button>
             </div>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        <section class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
-             <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
-             <div class="relative space-y-4">
-                 <h2 class="text-3xl font-semibold leading-tight">Jadwal Fleksibel</h2>
-                 <p class="text-orange-50/90 text-sm max-w-2xl">Pilih tanggal-tanggal yang kamu butuhkan, lalu atur jam pemakaian yang berbeda untuk setiap tanggalnya.</p>
-             </div>
+        <section
+            class="bg-gradient-to-br from-orange-500 via-orange-400 to-amber-300 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 pointer-events-none"
+                style="background-image:url('https://www.transparenttextures.com/patterns/topography.png');"></div>
+            <div class="relative space-y-4">
+                <h2 class="text-3xl font-semibold leading-tight">Jadwal Fleksibel</h2>
+                <p class="text-orange-50/90 text-sm max-w-2xl">Pilih tanggal-tanggal yang kamu butuhkan, lalu atur jam
+                    pemakaian yang berbeda untuk setiap tanggalnya.</p>
+            </div>
         </section>
 
         <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-8 space-y-8">
             <form id="peminjamanForm" class="space-y-6">
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>
-                        <label for="ruangan_id" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Ruangan (Opsional)</label>
-                        <select id="ruangan_id" name="ruangan_id" class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
+                        <label for="ruangan_id"
+                            class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Ruangan
+                            (Opsional)</label>
+                        <select id="ruangan_id" name="ruangan_id"
+                            class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white">
                             <option value="">Pilih Ruangan (Opsional)</option>
                         </select>
                     </div>
@@ -56,46 +76,66 @@
                 </div>
 
                 <div>
-                    <label for="selected_dates" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Langkah 1: Pilih Tanggal-Tanggal *</label>
-                    <input type="text" id="selected_dates" name="selected_dates" required placeholder="Klik untuk memilih tanggal..." class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white shadow-sm">
+                    <label for="selected_dates"
+                        class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Langkah 1:
+                        Pilih Tanggal-Tanggal *</label>
+                    <input type="text" id="selected_dates" name="selected_dates" required
+                        placeholder="Klik untuk memilih tanggal..."
+                        class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white shadow-sm">
                 </div>
 
-                <div id="scheduleContainer" class="hidden space-y-4 bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
+                <div id="scheduleContainer"
+                    class="hidden space-y-4 bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-                        <label class="text-xs font-semibold text-gray-700 uppercase tracking-widest">Langkah 2: Atur Jam per Tanggal</label>
+                        <label class="text-xs font-semibold text-gray-700 uppercase tracking-widest">Langkah 2: Atur Jam
+                            per Tanggal</label>
                     </div>
                     <div id="dynamicInputs" class="space-y-3"></div>
                 </div>
 
                 <div>
-                    <label for="keperluan" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Keperluan *</label>
-                    <textarea id="keperluan" name="keperluan" rows="4" required class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white"></textarea>
+                    <label for="keperluan"
+                        class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Keperluan
+                        *</label>
+                    <textarea id="keperluan" name="keperluan" rows="4" required
+                        class="w-full px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white"></textarea>
                 </div>
 
                 <div>
-                    <label for="surat_file" class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Unggah Surat Digital (PDF) *</label>
+                    <label for="surat_file"
+                        class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Unggah Surat
+                        Digital (PDF) *</label>
                     <div class="space-y-2">
-                        <input type="file" id="surat_file" name="surat_file" accept="application/pdf" required class="w-full px-4 py-3 border border-dashed border-orange-200 rounded-2xl bg-white focus:ring-2 focus:ring-orange-300 focus:outline-none cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200">
-                        <p class="text-xs text-gray-500" id="suratHelper">Format PDF, maksimum 2MB. Satu surat dapat digunakan untuk semua tanggal yang diajukan.</p>
+                        <input type="file" id="surat_file" name="surat_file" accept="application/pdf" required
+                            class="w-full px-4 py-3 border border-dashed border-orange-200 rounded-2xl bg-white focus:ring-2 focus:ring-orange-300 focus:outline-none cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200">
+                        <p class="text-xs text-gray-500" id="suratHelper">Format PDF, maksimum 2MB. Satu surat dapat
+                            digunakan untuk semua tanggal yang diajukan.</p>
                         <p class="text-xs text-green-600 hidden" id="suratInfo"></p>
                         <p class="text-xs text-red-600 hidden" id="suratError"></p>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    <label class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Barang yang Dipinjam (Opsional)</label>
+                    <label class="block text-xs font-semibold text-orange-500 uppercase tracking-widest mb-2">Barang
+                        yang Dipinjam (Opsional)</label>
                     <div id="barangList" class="space-y-3"></div>
-                    <button type="button" onclick="addBarangItem()" class="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
-                        <span class="w-5 h-5 rounded-full border border-orange-200 flex items-center justify-center">+</span> Tambah Barang
+                    <button type="button" onclick="addBarangItem()"
+                        class="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
+                        <span
+                            class="w-5 h-5 rounded-full border border-orange-200 flex items-center justify-center">+</span>
+                        Tambah Barang
                     </button>
                 </div>
 
                 <div class="flex flex-col gap-3 md:flex-row">
-                    <button type="submit" id="btnSubmit" class="flex-1 bg-orange-500 text-white py-3 rounded-2xl font-semibold hover:bg-orange-600 transition shadow-lg shadow-orange-200/60 disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    <button type="submit" id="btnSubmit"
+                        class="flex-1 bg-orange-500 text-white py-3 rounded-2xl font-semibold hover:bg-orange-600 transition shadow-lg shadow-orange-200/60 disabled:bg-gray-300 disabled:cursor-not-allowed">
                         Ajukan Peminjaman
                     </button>
-                    <a href="dashboard-mahasiswa.html" class="flex-1 bg-white text-gray-700 py-3 rounded-2xl font-semibold border border-orange-100 text-center hover:bg-orange-50 transition">Batal & Kembali</a>
+                    <a href="dashboard-mahasiswa.html"
+                        class="flex-1 bg-white text-gray-700 py-3 rounded-2xl font-semibold border border-orange-100 text-center hover:bg-orange-50 transition">Batal
+                        & Kembali</a>
                 </div>
                 <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
             </form>
@@ -153,13 +193,13 @@
 
         // --- 1. CONFIG FLATPICKR TANGGAL ---
         flatpickr("#selected_dates", {
-            mode: "multiple",       
-            dateFormat: "Y-m-d",    
+            mode: "multiple",
+            dateFormat: "Y-m-d",
             altInput: true,
-            altFormat: "j F Y",     
+            altFormat: "j F Y",
             minDate: "today",
             locale: "id",
-            onChange: function(selectedDates) {
+            onChange: function (selectedDates) {
                 selectedDateObjects = selectedDates;
                 generateTimeInputs(selectedDates);
             }
@@ -169,7 +209,7 @@
         function generateTimeInputs(dates) {
             const container = document.getElementById('scheduleContainer');
             const inputsDiv = document.getElementById('dynamicInputs');
-            
+
             // Bersihkan input lama
             inputsDiv.innerHTML = '';
 
@@ -189,7 +229,7 @@
 
                 const row = document.createElement('div');
                 row.className = "bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center gap-4 animate-fade-in";
-                
+
                 row.innerHTML = `
                     <div class="md:w-1/3">
                         <span class="text-xs font-bold text-orange-500 uppercase tracking-wider block mb-1">Tanggal ${index + 1}</span>
@@ -227,9 +267,9 @@
                     dateFormat: "H:i",
                     time_24hr: true,
                     locale: "id",
-                    onChange: function(selectedDates, dateStr, instance) {
+                    onChange: function (selectedDates, dateStr, instance) {
                         // Saat jam mulai dipilih, update aturan jam selesai
-                        
+
                         // A. Set minTime jam selesai = jam mulai yang dipilih
                         endPicker.set('minTime', dateStr);
 
@@ -238,13 +278,13 @@
                         //    Maka jam selesai 10:00 jadi tidak valid & harus dihapus.
                         const currentEndStr = endPicker.input.value;
                         if (currentEndStr && currentEndStr <= dateStr) {
-                             endPicker.clear();
+                            endPicker.clear();
                         }
                     }
                 });
             });
         }
-        
+
         // ... (Logic Barang & Ruangan tetap sama) ...
         let barangItems = [];
         let ruangans = [];
@@ -256,7 +296,7 @@
                 const select = document.getElementById('ruangan_id');
                 ruangans.forEach(r => {
                     const option = document.createElement('option');
-                    option.value = r.id;
+                    option.value = r.kode_ruangan;
                     option.textContent = `${r.kode_ruangan} - ${r.nama_ruangan}`;
                     select.appendChild(option);
                 });
@@ -264,20 +304,20 @@
         }
 
         async function loadBarang() {
-            try { barangs = await apiCall('/barang'); } 
+            try { barangs = await apiCall('/barang'); }
             catch (error) { console.error(error); }
         }
 
         function addBarangItem() {
             const index = barangItems.length;
-            barangItems.push({ barang_id: '', jumlah: 1 });
+            barangItems.push({ kode_barang: '', jumlah: 1 });
             const container = document.getElementById('barangList');
             const div = document.createElement('div');
             div.className = 'flex flex-col gap-3 md:flex-row md:items-center md:gap-3';
             div.innerHTML = `
                 <select name="barang_${index}" class="flex-1 px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white" required>
                     <option value="">Pilih Barang</option>
-                    ${barangs.map(b => `<option value="${b.id}">${b.kode_barang} - ${b.nama_barang} (Tersedia: ${b.jumlah_tersedia})</option>`).join('')}
+                    ${barangs.map(b => `<option value="${b.kode_barang}">${b.kode_barang} - ${b.nama_barang} (Tersedia: ${b.jumlah_tersedia})</option>`).join('')}
                 </select>
                 <input type="number" name="jumlah_${index}" min="1" value="1" required class="w-full md:w-32 px-4 py-3 border border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white" placeholder="Jumlah">
                 <button type="button" onclick="removeBarangItem(${index})" class="px-4 py-3 rounded-2xl border border-red-100 text-red-600 font-semibold hover:bg-red-50 transition">Hapus</button>
@@ -298,9 +338,9 @@
             e.preventDefault();
             const btnSubmit = document.getElementById('btnSubmit');
             const errorMsg = document.getElementById('errorMessage');
-            
+
             const formData = new FormData(e.target);
-            
+
             if (selectedDateObjects.length === 0) {
                 alert("Mohon pilih setidaknya satu tanggal.");
                 return;
@@ -315,13 +355,13 @@
             for (let i = 0; i < selectedDateObjects.length; i++) {
                 const startVal = document.getElementById(`start_${i}`).value;
                 const endVal = document.getElementById(`end_${i}`).value;
-                
+
                 if (!startVal || !endVal) {
-                    alert(`Mohon lengkapi jam mulai dan selesai untuk tanggal ke-${i+1}.`);
+                    alert(`Mohon lengkapi jam mulai dan selesai untuk tanggal ke-${i + 1}.`);
                     return;
                 }
                 if (startVal >= endVal) {
-                    alert(`Jam selesai harus lebih besar dari jam mulai pada tanggal ke-${i+1}.`);
+                    alert(`Jam selesai harus lebih besar dari jam mulai pada tanggal ke-${i + 1}.`);
                     return;
                 }
             }
@@ -333,7 +373,7 @@
                 const jumlahInput = document.querySelector(`input[name="jumlah_${i}"]`);
                 if (barangSelect && jumlahInput && barangSelect.value) {
                     barang.push({
-                        barang_id: parseInt(barangSelect.value),
+                        kode_barang: barangSelect.value,
                         jumlah: parseInt(jumlahInput.value)
                     });
                 }
@@ -356,7 +396,7 @@
                     const fullEndDate = new Date(`${dateVal}T${endVal}:00`);
 
                     const payload = {
-                        ruangan_id: formData.get('ruangan_id') ? parseInt(formData.get('ruangan_id')) : null,
+                        kode_ruangan: formData.get('ruangan_id') || null,
                         tanggal_mulai: fullStartDate.toISOString(),
                         tanggal_selesai: fullEndDate.toISOString(),
                         keperluan: formData.get('keperluan'),
@@ -370,7 +410,7 @@
                     });
 
                     btnSubmit.textContent = `Mengunggah surat untuk jadwal ${i + 1}...`;
-                    await uploadSuratDigital(peminjamanBaru.id, suratFile);
+                    await uploadSuratDigital(peminjamanBaru.kode_peminjaman, suratFile);
                 }
 
                 alert('Semua jadwal berhasil diajukan!');
@@ -416,4 +456,5 @@
         loadBarang();
     </script>
 </body>
+
 </html>
