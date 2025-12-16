@@ -368,7 +368,7 @@
             const dateObj = new Date(year, month, day);
             if (selectedDateLabel) {
                 selectedDateLabel.innerText = dateObj.toLocaleDateString('id-ID', {
-                    weekday: 'long', day: 'numeric', month: 'short'
+                    weekday: 'long', day: 'numeric', month: 'short', year: 'numeric'
                 });
             }
 
