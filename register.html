@@ -187,6 +187,25 @@
                     </div>
 
                     <div>
+                        <label for="no_hp"
+                            class="block text-[10px] sm:text-xs font-semibold text-orange-500 uppercase tracking-widest mb-1.5 sm:mb-2">Nomor
+                            HP</label>
+                        <div class="relative">
+                            <div
+                                class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                                <span class="text-lg sm:text-xl">🇮🇩</span>
+                                <span class="text-sm sm:text-base text-gray-700 font-medium">+62</span>
+                            </div>
+                            <input type="tel" id="no_hp" name="no_hp"
+                                class="w-full pl-[70px] sm:pl-[80px] pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-orange-100 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white transition-colors"
+                                placeholder="812 3456 7890" maxlength="13" inputmode="numeric">
+                        </div>
+                        <p class="text-[10px] sm:text-xs text-gray-400 mt-1 sm:mt-1.5">
+                            📱 Untuk notifikasi WhatsApp approval dan reminder kegiatan
+                        </p>
+                    </div>
+
+                    <div>
                         <label for="password"
                             class="block text-[10px] sm:text-xs font-semibold text-orange-500 uppercase tracking-widest mb-1.5 sm:mb-2">Password</label>
                         <div class="relative">
@@ -238,7 +257,7 @@
                         <div class="relative">
                             <select id="organisasiKode" name="organisasiKode"
                                 class="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-8 sm:pr-10 text-sm sm:text-base border border-orange-100 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-orange-300 focus:outline-none bg-white transition-colors appearance-none cursor-pointer">
-                                <option value="">-- Pilih Organisasi (Opsional) --</option>
+                                <option value="" class="text-gray-400">Pilih Organisasi</option>
                             </select>
                             <div
                                 class="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
@@ -288,6 +307,38 @@
             eyeOffIcon.classList.toggle('hidden');
 
             this.setAttribute('aria-label', type === 'password' ? 'Tampilkan password' : 'Sembunyikan password');
+        });
+
+        // Phone number input handler (WhatsApp style with +62 prefix)
+        const phoneInput = document.getElementById('no_hp');
+
+        phoneInput.addEventListener('input', function (e) {
+            let value = e.target.value;
+
+            // Remove all non-numeric characters
+            value = value.replace(/\D/g, '');
+
+            // Limit to 13 digits (max Indonesian phone number length)
+            if (value.length > 13) {
+                value = value.substring(0, 13);
+            }
+
+            // Auto-format with spaces for better readability
+            if (value.length > 3 && value.length <= 7) {
+                value = value.substring(0, 3) + ' ' + value.substring(3);
+            } else if (value.length > 7) {
+                value = value.substring(0, 3) + ' ' + value.substring(3, 7) + ' ' + value.substring(7);
+            }
+
+            e.target.value = value;
+        });
+
+        // Prevent non-numeric input
+        phoneInput.addEventListener('keypress', function (e) {
+            // Allow only numbers
+            if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                e.preventDefault();
+            }
         });
     </script>
     <script src="assets/js/api.legacy.js"></script>
@@ -345,12 +396,22 @@
 
             const organisasiKodeVal = document.getElementById('organisasiKode').value.trim();
             const roleVal = document.getElementById('role').value;
+            const noHpVal = document.getElementById('no_hp').value.trim();
+
+            // Format phone number: remove spaces and add +62 prefix
+            let formattedPhone = null;
+            if (noHpVal !== '') {
+                const cleanPhone = noHpVal.replace(/\s/g, ''); // Remove spaces
+                formattedPhone = '+62' + cleanPhone; // Add +62 prefix
+            }
 
             const payload = {
                 nama: document.getElementById('nama').value,
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value,
                 role: roleVal,
+                // Send no_hp with +62 prefix if provided, otherwise null
+                no_hp: formattedPhone,
                 // Only send organisasi_kode if role is MAHASISWA
                 organisasi_kode: (roleVal === 'MAHASISWA' && organisasiKodeVal !== '') ? organisasiKodeVal : null
             };
