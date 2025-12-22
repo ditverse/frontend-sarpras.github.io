@@ -37,6 +37,7 @@
                 </div>
             </div>
             <div class="flex gap-3">
+                <div id="notification-container" class="relative"></div>
                 <a href="sarpras.html"
                     class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-orange-200 flex items-center justify-center text-orange-600 bg-white hover:bg-orange-50 hover:border-orange-300 transition-all shadow-sm"
                     title="Kembali ke Dashboard">
@@ -289,8 +290,12 @@
     </main>
 
     <script src="assets/js/api.legacy.js"></script>
+    <script src="assets/js/notification.js"></script>
     <script>
         checkAuth();
+
+        // Initialize notification system
+        initNotification('notification-container');
 
         // Elements
         const pageTitle = document.getElementById('pageTitle');

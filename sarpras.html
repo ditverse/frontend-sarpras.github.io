@@ -36,6 +36,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-4 text-sm font-medium">
+                <div id="notification-container" class="relative"></div>
                 <span id="userName"
                     class="text-gray-600 bg-white border border-orange-100 px-4 py-2 rounded-xl shadow-sm">Admin</span>
                 <button onclick="logout()"
@@ -255,6 +256,7 @@
 
     <script src="assets/js/api.legacy.js"></script>
     <script src="assets/js/calendar-widget.js"></script>
+    <script src="assets/js/notification.js"></script>
     <script>
         // Cek Auth saat halaman dimuat
         checkAuth();
@@ -262,6 +264,9 @@
         if (user) {
             document.getElementById('userName').textContent = user.nama || 'Admin';
         }
+
+        // Initialize notification system
+        initNotification('notification-container');
 
         // Fungsi Logout
         function logout() {

@@ -40,6 +40,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3">
+                <div id="notification-container" class="relative"></div>
                 <span id="userName"
                     class="text-gray-600 bg-white border border-orange-100 px-3 sm:px-4 py-2 rounded-xl shadow-sm text-sm font-medium">Security</span>
                 <a href="riwayat-kehadiran.html"
@@ -257,6 +258,7 @@
     <script src="assets/js/api.legacy.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+    <script src="assets/js/notification.js"></script>
     <script>
         checkAuth();
 
@@ -264,6 +266,9 @@
         if (user) {
             document.getElementById('userName').textContent = user.nama || 'Security';
         }
+
+        // Initialize notification system
+        initNotification('notification-container');
 
         // Format date to Indonesian locale
         function formatDateIndonesian(dateStr) {
