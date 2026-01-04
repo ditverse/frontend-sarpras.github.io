@@ -65,6 +65,39 @@
             </div>
         </section>
 
+        <!-- Info Banner Jam Operasional -->
+        <div id="infoBanner" class="bg-blue-50 border-l-4 border-blue-500 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="flex-1">
+                    <h3 class="font-bold text-blue-900 text-sm mb-2">ℹ️ Informasi Jam Operasional</h3>
+                    <ul class="text-sm text-blue-800 space-y-1">
+                        <li><strong>Pengajuan:</strong> Senin-Jumat, 07:00-17:00 WIB</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning Banner (Hidden by default, shown when outside office hours) -->
+        <div id="warningBanner" class="hidden bg-yellow-50 border-l-4 border-yellow-500 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
+                </svg>
+                <div class="flex-1">
+                    <h3 class="font-bold text-yellow-900 text-sm mb-1">⚠️ Di Luar Jam Kerja</h3>
+                    <p id="warningMessage" class="text-sm text-yellow-800"></p>
+                </div>
+            </div>
+        </div>
+
         <section class="bg-white rounded-3xl shadow-sm border border-orange-100 p-8 space-y-8">
             <form id="peminjamanForm" class="space-y-6">
                 <div class="grid gap-6 md:grid-cols-2">
@@ -229,6 +262,12 @@
             minDate: "today",
             maxDate: maxDate, // Batasan 14 hari ke depan
             locale: "id",
+            disable: [
+                function (date) {
+                    // Disable hari Minggu (0 = Sunday)
+                    return date.getDay() === 0;
+                }
+            ],
             onChange: function (selectedDates) {
                 selectedDateObjects = selectedDates;
                 generateTimeInputs(selectedDates);
@@ -292,7 +331,9 @@
                     noCalendar: true,
                     dateFormat: "H:i",
                     time_24hr: true,
-                    locale: "id"
+                    locale: "id",
+                    minTime: "09:00", // Default minimal 09:00 (07:00 + 2 jam)
+                    maxTime: "22:00"
                 });
 
                 // 2. Init Flatpickr untuk JAM MULAI dengan Event Listener
@@ -302,18 +343,36 @@
                     dateFormat: "H:i",
                     time_24hr: true,
                     locale: "id",
+                    minTime: "07:00",
+                    maxTime: "20:00", // Max 20:00 biar jam selesai bisa 22:00 (minimal +2 jam)
                     onChange: function (selectedDates, dateStr, instance) {
                         // Saat jam mulai dipilih, update aturan jam selesai
 
-                        // A. Set minTime jam selesai = jam mulai yang dipilih
-                        endPicker.set('minTime', dateStr);
+                        if (!dateStr) return;
 
-                        // B. Auto Clear: Jika user sebelumnya sudah pilih jam selesai (misal 10:00)
-                        //    Lalu mengubah jam mulai jadi lebih besar (misal 12:00),
-                        //    Maka jam selesai 10:00 jadi tidak valid & harus dihapus.
+                        // Parse jam mulai
+                        const [startHour, startMin] = dateStr.split(':').map(Number);
+
+                        // Hitung jam minimal selesai = jam mulai + 2 jam
+                        let minEndHour = startHour + 2;
+                        let minEndMin = startMin;
+
+                        // Format jam minimal selesai sebagai HH:mm
+                        const minEndTime = `${String(minEndHour).padStart(2, '0')}:${String(minEndMin).padStart(2, '0')}`;
+
+                        // A. Set minTime jam selesai = jam mulai + 2 jam
+                        endPicker.set('minTime', minEndTime);
+
+                        // B. Auto Clear: Jika jam selesai yang sudah dipilih < jam mulai + 2 jam
                         const currentEndStr = endPicker.input.value;
-                        if (currentEndStr && currentEndStr <= dateStr) {
-                            endPicker.clear();
+                        if (currentEndStr) {
+                            const [endHour, endMin] = currentEndStr.split(':').map(Number);
+                            const endTotalMin = endHour * 60 + endMin;
+                            const minEndTotalMin = minEndHour * 60 + minEndMin;
+
+                            if (endTotalMin < minEndTotalMin) {
+                                endPicker.clear();
+                            }
                         }
                     }
                 });
@@ -410,10 +469,65 @@
             }
         }
 
+        // --- CLIENT-SIDE VALIDATION: CHECK SUBMISSION TIME ---
+        function checkSubmissionTime() {
+            const now = new Date();
+            const day = now.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+            const hour = now.getHours();
+
+            // Check if weekday (Monday-Friday)
+            if (day === 0 || day === 6) {
+                return {
+                    valid: false,
+                    message: "Pengajuan hanya dapat dilakukan pada hari kerja (Senin-Jumat)"
+                };
+            }
+
+            // Check office hours (07:00-17:00)
+            if (hour < 7 || hour >= 17) {
+                return {
+                    valid: false,
+                    message: "Pengajuan hanya dapat dilakukan pada jam kerja (07:00-17:00 WIB)"
+                };
+            }
+
+            return { valid: true };
+        }
+
+        // Update submit button state based on office hours
+        function updateSubmitButtonState() {
+            const check = checkSubmissionTime();
+            const btnSubmit = document.getElementById('btnSubmit');
+            const warningBanner = document.getElementById('warningBanner');
+            const warningMessage = document.getElementById('warningMessage');
+
+            if (!check.valid) {
+                btnSubmit.disabled = true;
+                btnSubmit.title = check.message;
+                warningBanner.classList.remove('hidden');
+                warningMessage.textContent = check.message;
+            } else {
+                btnSubmit.disabled = false;
+                btnSubmit.title = '';
+                warningBanner.classList.add('hidden');
+            }
+        }
+
+        // Update every minute
+        setInterval(updateSubmitButtonState, 60000);
+        updateSubmitButtonState(); // Initial check
+
         document.getElementById('peminjamanForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btnSubmit = document.getElementById('btnSubmit');
             const errorMsg = document.getElementById('errorMessage');
+
+            // 1. Check submission time
+            const submissionCheck = checkSubmissionTime();
+            if (!submissionCheck.valid) {
+                showToast(submissionCheck.message, 'error');
+                return;
+            }
 
             const formData = new FormData(e.target);
 
@@ -514,8 +628,11 @@
 
             } catch (error) {
                 console.error(error);
-                errorMsg.textContent = `Terjadi kesalahan: ${error.message}`;
+                // Show specific error message from backend
+                const errorMessage = error.message || 'Terjadi kesalahan saat mengajukan peminjaman';
+                errorMsg.textContent = errorMessage;
                 errorMsg.classList.remove('hidden');
+                showToast(errorMessage, 'error');
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = "Coba Lagi";
             }
