@@ -73,17 +73,11 @@ const renderCalendar = () => {
         const isToday = i === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear();
 
         const dayEl = document.createElement('div');
-        dayEl.className = `
-      h-10 w-10 mx-auto flex flex-col items-center justify-center rounded-full cursor-pointer transition-all duration-200 group relative
-      ${isToday ? 'bg-orange-500 text-white shadow-md ring-2 ring-orange-100' : 'text-gray-700 hover:bg-orange-50'}
-    `;
+        dayEl.className = `relative h-10 w-10 mx-auto flex flex-col items-center justify-center rounded-full cursor-pointer transition-all duration-200 ${isToday ? 'bg-orange-500 text-white shadow-md ring-2 ring-orange-100' : 'text-gray-700 hover:bg-orange-50'}`;
 
         dayEl.onclick = () => showScheduleForDate(i, month, year);
 
-        dayEl.innerHTML = `
-      <span class="text-sm font-medium relative z-10">${i}</span>
-      ${hasEvent ? `<span class="absolute bottom-1 h-1.5 w-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-red-500'}"></span>` : ''}
-    `;
+        dayEl.innerHTML = `<span class="text-sm font-medium">${i}</span>${hasEvent ? `<span class="absolute bottom-1 h-1.5 w-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-red-500'}"></span>` : ''}`;
 
         calendarGrid.appendChild(dayEl);
     }
@@ -103,7 +97,18 @@ const showScheduleForDate = (day, month, year) => {
         });
     }
 
-    const dailySchedules = allSchedules.filter((s) => s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
+    // Filter: Show APPROVED and PENDING, exclude REJECTED
+    const dailySchedules = allSchedules.filter((s) =>
+        s.tanggal_mulai &&
+        s.tanggal_mulai.startsWith(dateKey) &&
+        s.status !== 'REJECTED' &&
+        s.status !== 'CANCELLED'
+    ).sort((a, b) => {
+        // Sort Priority: APPROVED first, then PENDING
+        if (a.status === 'APPROVED' && b.status !== 'APPROVED') return -1;
+        if (a.status !== 'APPROVED' && b.status === 'APPROVED') return 1;
+        return 0;
+    });
 
     // --- UPDATE TAMPILAN KOSONG (EMPTY STATE) ---
     if (dailySchedules.length === 0) {
@@ -128,6 +133,19 @@ const showScheduleForDate = (day, month, year) => {
             const namaKegiatan = j.kegiatan?.nama_kegiatan || 'Penggunaan Ruangan';
             const peminjam = j.peminjam || '-';
             const namaRuangan = j.nama_ruangan || 'Lokasi Belum Ditentukan';
+
+            // Status badge styling
+            const status = j.status || 'PENDING';
+            let statusBadge = '';
+            if (status === 'PENDING') {
+                statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">BOOKED</span>';
+            } else if (status === 'APPROVED') {
+                statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">APPROVED</span>';
+            } else if (status === 'REJECTED') {
+                statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">REJECTED</span>';
+            } else {
+                statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">${status}</span>`;
+            }
 
             return `
         <div class="bg-white rounded-2xl p-5 border border-gray-100 hover:border-orange-200 transition-all hover:shadow-md group flex flex-col h-full relative overflow-hidden">
@@ -159,6 +177,12 @@ const showScheduleForDate = (day, month, year) => {
                     <p class="text-sm font-medium text-gray-700">${namaKegiatan}</p>
                 </div>
                 
+                <!-- Status Badge -->
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-1">Status</p>
+                    ${statusBadge}
+                </div>
+                
                 <!-- Borrower Info -->
                 <div class="pt-2 border-t border-dashed border-gray-100">
                     <div class="flex items-center gap-2 text-sm text-gray-500">
@@ -183,4 +207,152 @@ if (calendarGrid && jadwalContainer) {
     // Only init if we are not already waiting for something else or if explicitly called
     // But since this is a widget, let's just run it
     fetchSchedules();
+}
+
+// --- ROOM AVAILABILITY MODAL LOGIC ---
+let currentSelectedDate = new Date(); // Track currently selected date
+let allRooms = []; // Store all rooms data
+
+window.openRoomAvailability = async function () {
+    const modal = document.getElementById('roomAvailabilityModal');
+    const modalDateLabel = document.getElementById('modalDateLabel');
+    const roomListContainer = document.getElementById('roomListContainer');
+
+    if (!modal) return;
+
+    // Show modal
+    modal.classList.remove('hidden');
+
+    // Set date label
+    modalDateLabel.textContent = currentSelectedDate.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    // Show loading state
+    roomListContainer.innerHTML = `
+        <div class="text-center text-gray-400 py-8">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <p class="text-sm">Memuat data ruangan...</p>
+        </div>
+    `;
+
+    try {
+        // Fetch all rooms if not already loaded
+        if (allRooms.length === 0) {
+            allRooms = await apiCall('/ruangan');
+        }
+
+        // Get room availability for selected date
+        const roomsWithStatus = getRoomStatusForDate(currentSelectedDate);
+
+        // Render room cards
+        renderRoomCards(roomsWithStatus);
+    } catch (error) {
+        console.error('Error loading room availability:', error);
+        roomListContainer.innerHTML = `
+            <div class="text-center text-red-500 py-8">
+                <p class="text-sm">Gagal memuat data ruangan</p>
+            </div>
+        `;
+    }
+}
+
+window.closeRoomModal = function () {
+    const modal = document.getElementById('roomAvailabilityModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function getRoomStatusForDate(date) {
+    const dateKey = formatDateKey(date.getFullYear(), date.getMonth(), date.getDate());
+    const schedulesOnDate = allSchedules.filter(s =>
+        s.tanggal_mulai &&
+        s.tanggal_mulai.startsWith(dateKey) &&
+        s.status !== 'REJECTED' &&
+        s.status !== 'CANCELLED'
+    );
+
+    return allRooms.map(room => {
+        const booking = schedulesOnDate.find(s => s.kode_ruangan === room.kode_ruangan);
+
+        return {
+            ...room,
+            status: booking ? booking.status : 'AVAILABLE',
+            booking: booking || null
+        };
+    });
+}
+
+function renderRoomCards(roomsWithStatus) {
+    const container = document.getElementById('roomListContainer');
+
+    if (roomsWithStatus.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-gray-400 py-8">
+                <p class="text-sm">Tidak ada data ruangan</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = roomsWithStatus.map(room => {
+        let statusBadge, statusColor;
+
+        if (room.status === 'AVAILABLE') {
+            statusBadge = 'AVAILABLE';
+            statusColor = 'bg-gray-100 text-gray-700 border-gray-200';
+        } else if (room.status === 'PENDING') {
+            statusBadge = 'BOOKED';
+            statusColor = 'bg-orange-100 text-orange-700 border-orange-200';
+        } else if (room.status === 'APPROVED') {
+            statusBadge = 'APPROVED';
+            statusColor = 'bg-green-100 text-green-700 border-green-200';
+        } else {
+            statusBadge = room.status;
+            statusColor = 'bg-gray-100 text-gray-700 border-gray-200';
+        }
+
+        return `
+            <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-900 text-base">${room.nama_ruangan}</h4>
+                        <p class="text-sm text-gray-500">${room.lokasi || 'Lokasi tidak tersedia'}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Kapasitas: ${room.kapasitas || '-'} orang</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor} border flex-shrink-0">
+                        ${statusBadge}
+                    </span>
+                </div>
+                ${room.booking ? `
+                    <div class="mt-3 pt-3 border-t border-gray-100 space-y-1">
+                        <div class="flex items-center gap-2 text-xs text-gray-600">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>${formatTime(room.booking.tanggal_mulai)} - ${formatTime(room.booking.tanggal_selesai)}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-600">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>${room.booking.peminjam || '-'}</span>
+                        </div>
+                        ${room.booking.kegiatan ? `
+                            <div class="flex items-center gap-2 text-xs text-gray-600">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <span>${room.booking.kegiatan.nama_kegiatan}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
 }

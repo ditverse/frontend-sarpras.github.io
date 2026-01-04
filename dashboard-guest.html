@@ -116,18 +116,30 @@
       <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
         <div class="p-6 border-b border-orange-100 flex flex-col gap-2">
           <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Jadwal Harian</p>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between flex-wrap gap-2">
             <h3 class="text-xl font-semibold text-gray-900">Agenda Tanggal Terpilih</h3>
-            <span id="selected-date-label"
-              class="inline-flex flex-col items-center justify-center text-sm font-semibold text-orange-600 bg-orange-50 px-4 py-1.5 rounded-full border border-orange-100 text-center leading-tight min-w-[140px]">
-              Hari Ini
-            </span>
+            <div class="flex items-center gap-2">
+              <span id="selected-date-label"
+                class="inline-flex flex-col items-center justify-center text-sm font-semibold text-orange-600 bg-orange-50 px-4 py-1.5 rounded-full border border-orange-100 text-center leading-tight min-w-[140px]">
+                Hari Ini
+              </span>
+              <button onclick="openRoomAvailability()"
+                class="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-semibold hover:bg-blue-600 transition-all shadow-sm flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                  </path>
+                </svg>
+                Ruangan Tersedia
+              </button>
+            </div>
           </div>
           <p class="text-xs text-gray-500">Klik tanggal pada kalender untuk menampilkan detail kegiatan pada ruangan.
           </p>
         </div>
 
-        <div id="jadwal-list-container" class="p-6 space-y-4 flex-1 overflow-y-auto no-scrollbar">
+        <div id="jadwal-list-container" class="p-6 space-y-4 flex-1 overflow-y-auto no-scrollbar"
+          style="max-height: 400px;">
           <p class="text-center text-gray-400 text-sm py-8 italic">Pilih tanggal di atas untuk melihat detail.</p>
         </div>
       </div>
@@ -200,6 +212,36 @@
         </div>
       </div>
     </section>
+
+    <!-- Room Availability Modal -->
+    <div id="roomAvailabilityModal"
+      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden animate-fade-in">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white">Ketersediaan Ruangan</h3>
+            <p id="modalDateLabel" class="text-blue-100 text-sm"></p>
+          </div>
+          <button onclick="closeRoomModal()" class="text-white hover:bg-white/20 rounded-lg p-1.5 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+              </path>
+            </svg>
+          </button>
+        </div>
+        <div id="roomListContainer" class="p-6 max-h-96 overflow-y-auto space-y-3">
+          <!-- Room cards will be inserted here -->
+          <div class="text-center text-gray-400 py-8">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+              </path>
+            </svg>
+            <p class="text-sm">Memuat data ruangan...</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </main>
   <script type="module" src="assets/js/dashboard-guest.js"></script>

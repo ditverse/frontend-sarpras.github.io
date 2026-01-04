@@ -80,25 +80,24 @@
 
         <!-- Calendar Section -->
         <section class="grid gap-6 lg:grid-cols-[3fr,2fr] items-stretch">
-            <div
-                class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-orange-100 overflow-hidden flex flex-col">
+            <div class="bg-white rounded-3xl shadow-sm border border-orange-100 overflow-hidden flex flex-col">
                 <div
-                    class="p-5 sm:p-6 border-b border-orange-100 flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-orange-50/60">
+                    class="p-6 border-b border-orange-100 flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-orange-50/60">
                     <div>
-                        <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Kalender Jadwal</p>
-                        <h2 id="month-year-label" class="text-xl sm:text-2xl font-bold text-gray-900 capitalize">
-                            Memuat...</h2>
+                        <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Kalender Aktivitas
+                        </p>
+                        <h2 id="month-year-label" class="text-2xl font-bold text-gray-900 capitalize">Memuat...</h2>
                     </div>
                     <div class="flex gap-3">
                         <button onclick="changeMonth(-1)"
-                            class="p-2.5 sm:p-3 bg-white border border-orange-200 rounded-xl sm:rounded-2xl hover:bg-orange-50 hover:shadow-sm text-orange-600 transition-all">
+                            class="p-3 bg-white border border-orange-200 rounded-2xl hover:bg-orange-50 hover:shadow-sm text-orange-600 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </button>
                         <button onclick="changeMonth(1)"
-                            class="p-2.5 sm:p-3 bg-white border border-orange-200 rounded-xl sm:rounded-2xl hover:bg-orange-50 hover:shadow-sm text-orange-600 transition-all">
+                            class="p-3 bg-white border border-orange-200 rounded-2xl hover:bg-orange-50 hover:shadow-sm text-orange-600 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
                                 </path>
@@ -106,7 +105,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="p-5 sm:p-6 flex-1">
+                <div class="p-6 flex-1">
                     <div
                         class="grid grid-cols-7 text-center mb-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">
                         <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
@@ -115,20 +114,31 @@
                 </div>
             </div>
 
-            <div
-                class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-                <div class="p-5 sm:p-6 border-b border-orange-100 flex flex-col gap-2">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-orange-100 flex flex-col gap-2">
                     <p class="text-xs uppercase tracking-widest text-orange-500 font-semibold">Jadwal Harian</p>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Agenda Tanggal Terpilih</h3>
-                        <span id="selected-date-label"
-                            class="inline-flex flex-col items-center justify-center text-xs sm:text-sm font-semibold text-orange-600 bg-orange-50 px-3 sm:px-4 py-1.5 rounded-full border border-orange-100 text-center leading-tight min-w-[120px] sm:min-w-[140px]">
-                            Hari Ini
-                        </span>
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h3 class="text-xl font-semibold text-gray-900">Agenda Tanggal Terpilih</h3>
+                        <div class="flex items-center gap-2">
+                            <span id="selected-date-label"
+                                class="inline-flex flex-col items-center justify-center text-sm font-semibold text-orange-600 bg-orange-50 px-4 py-1.5 rounded-full border border-orange-100 text-center leading-tight min-w-[140px]">
+                                Hari Ini
+                            </span>
+                            <button onclick="openRoomAvailability()"
+                                class="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-semibold hover:bg-blue-600 transition-all shadow-sm flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                                Ruangan Tersedia
+                            </button>
+                        </div>
                     </div>
-                    <p class="text-xs text-gray-500">Klik tanggal pada kalender untuk melihat jadwal peminjaman.</p>
+                    <p class="text-xs text-gray-500">Klik tanggal pada kalender untuk menampilkan detail kegiatan pada
+                        ruangan.</p>
                 </div>
-                <div id="jadwal-list-container" class="p-5 sm:p-6 space-y-4 flex-1 overflow-y-auto no-scrollbar"
+                <div id="jadwal-list-container" class="p-6 space-y-4 flex-1 overflow-y-auto no-scrollbar"
                     style="max-height: 400px;">
                     <p class="text-center text-gray-400 text-sm py-8 italic">Pilih tanggal di atas untuk melihat detail.
                     </p>
@@ -244,6 +254,37 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Room Availability Modal -->
+    <div id="roomAvailabilityModal"
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden animate-fade-in">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Ketersediaan Ruangan</h3>
+                    <p id="modalDateLabel" class="text-blue-100 text-sm"></p>
+                </div>
+                <button onclick="closeRoomModal()" class="text-white hover:bg-white/20 rounded-lg p-1.5 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div id="roomListContainer" class="p-6 max-h-96 overflow-y-auto space-y-3">
+                <!-- Room cards will be inserted here -->
+                <div class="text-center text-gray-400 py-8">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
+                    <p class="text-sm">Memuat data ruangan...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -374,43 +415,38 @@
                 const isToday = i === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear();
 
                 const dayEl = document.createElement('div');
-                dayEl.className = `
-                    h-9 w-9 sm:h-10 sm:w-10 mx-auto flex flex-col items-center justify-center rounded-full cursor-pointer transition-all duration-200 group relative
-                    ${isToday ? 'bg-orange-500 text-white shadow-md ring-2 ring-orange-100' : 'text-gray-700 hover:bg-orange-50'}
-                `;
+                dayEl.className = `relative h-10 w-10 mx-auto flex flex-col items-center justify-center rounded-full cursor-pointer transition-all duration-200 ${isToday ? 'bg-orange-500 text-white shadow-md ring-2 ring-orange-100' : 'text-gray-700 hover:bg-orange-50'}`;
                 dayEl.onclick = () => showScheduleForDate(i, month, year);
-                dayEl.innerHTML = `
-                    <span class="text-xs sm:text-sm font-medium relative z-10">${i}</span>
-                    ${hasEvent ? `<span class="absolute bottom-0.5 sm:bottom-1 h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-red-500'}"></span>` : ''}
-                `;
+                dayEl.innerHTML = `<span class="text-sm font-medium">${i}</span>${hasEvent ? `<span class="absolute bottom-1 h-1.5 w-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-red-500'}"></span>` : ''}`;
                 calendarGrid.appendChild(dayEl);
             }
         };
 
         const showScheduleForDate = (day, month, year) => {
+            currentSelectedDate = new Date(year, month, day);
             if (!jadwalListContainer) return;
 
             const dateKey = formatDateKey(year, month, day);
             const dateObj = new Date(year, month, day);
             if (selectedDateLabel) {
-                selectedDateLabel.innerText = dateObj.toLocaleDateString('id-ID', {
-                    weekday: 'long', day: 'numeric', month: 'short', year: 'numeric'
-                });
+                selectedDateLabel.innerText = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             }
 
-            const dailySchedules = allSchedules.filter((s) => s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
+            // Filter: Show APPROVED and PENDING, exclude REJECTED
+            const dailySchedules = allSchedules.filter((s) =>
+                s.tanggal_mulai &&
+                s.tanggal_mulai.startsWith(dateKey) &&
+                s.status !== 'REJECTED' &&
+                s.status !== 'CANCELLED'
+            ).sort((a, b) => {
+                // Sort Priority: APPROVED first, then PENDING
+                if (a.status === 'APPROVED' && b.status !== 'APPROVED') return -1;
+                if (a.status !== 'APPROVED' && b.status === 'APPROVED') return 1;
+                return 0;
+            });
 
             if (dailySchedules.length === 0) {
-                jadwalListContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-10 text-center">
-                        <div class="bg-orange-50 p-4 rounded-full mb-4 border border-orange-100">
-                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-gray-900 font-semibold text-sm sm:text-base mb-1">Tidak Ada Jadwal</h4>
-                        <p class="text-gray-500 text-xs sm:text-sm">Belum ada kegiatan yang terdaftar.</p>
-                    </div>`;
+                jadwalListContainer.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-center"><div class="bg-orange-50 p-4 rounded-full mb-4 border border-orange-100"><svg class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div><h4 class="text-gray-900 font-semibold text-base mb-1">Tidak Ada Jadwal</h4><p class="text-gray-500 text-sm max-w-[200px]">Belum ada kegiatan untuk tanggal ini.</p></div>`;
                 return;
             }
 
@@ -419,43 +455,61 @@
                 const jamSelesai = formatTime(j.tanggal_selesai);
                 const namaKegiatan = j.kegiatan?.nama_kegiatan || 'Penggunaan Ruangan';
                 const peminjam = j.peminjam || '-';
-                const namaRuangan = j.nama_ruangan || 'Ruangan';
+                const namaRuangan = j.nama_ruangan || 'Lokasi Belum Ditentukan';
+
+                // Status badge styling
+                const status = j.status || 'PENDING';
+                let statusBadge = '';
+                if (status === 'PENDING') {
+                    statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">BOOKED</span>';
+                } else if (status === 'APPROVED') {
+                    statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">APPROVED</span>';
+                } else if (status === 'REJECTED') {
+                    statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">REJECTED</span>';
+                } else {
+                    statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">${status}</span>`;
+                }
 
                 return `
-                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 hover:border-orange-200 transition-all hover:shadow-md group flex flex-col h-full relative overflow-hidden">
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 hover:border-orange-200 transition-all hover:shadow-md group flex flex-col h-full relative overflow-hidden">
                     <!-- Decorative Element -->
-                    <div class="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-orange-50 rounded-bl-[2.5rem] sm:rounded-bl-[3rem] -mr-2 sm:-mr-3 -mt-2 sm:-mt-3 transition-transform group-hover:scale-110"></div>
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-orange-50 rounded-bl-[3rem] -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
                     
                     <!-- Header: Icon + Time Badge -->
                     <div class="relative z-10 mb-3 flex items-start justify-between">
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-orange-100 text-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         </div>
-                        <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-semibold text-orange-600 bg-orange-50 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg border border-orange-100">
-                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="flex items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-100">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             ${jamMulai} - ${jamSelesai}
                         </div>
                     </div>
 
                     <!-- Content -->
-                    <div class="relative z-10 space-y-2 sm:space-y-3 flex-1">
+                    <div class="relative z-10 space-y-3 flex-1">
                         <!-- Room Name (Primary) -->
                         <div>
-                            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Ruangan</p>
-                            <h4 class="text-base sm:text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight">${namaRuangan}</h4>
+                            <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Ruangan</p>
+                            <h4 class="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight">${namaRuangan}</h4>
                         </div>
                         
                         <!-- Activity Name -->
                         <div>
-                            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Kegiatan</p>
-                            <p class="text-xs sm:text-sm font-medium text-gray-700">${namaKegiatan}</p>
+                            <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Kegiatan</p>
+                            <p class="text-sm font-medium text-gray-700">${namaKegiatan}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-1">Status</p>
+                            ${statusBadge}
                         </div>
                         
                         <!-- Borrower Info -->
                         <div class="pt-2 border-t border-dashed border-gray-100">
-                            <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                <span class="font-medium truncate">${peminjam}</span>
+                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                <span class="font-medium">${peminjam}</span>
                             </div>
                         </div>
                     </div>
@@ -621,6 +675,154 @@
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = 'index.html';
+        }
+
+        // --- ROOM AVAILABILITY MODAL LOGIC ---
+        let currentSelectedDate = new Date(); // Track currently selected date
+        let allRooms = []; // Store all rooms data
+
+        async function openRoomAvailability() {
+            const modal = document.getElementById('roomAvailabilityModal');
+            const modalDateLabel = document.getElementById('modalDateLabel');
+            const roomListContainer = document.getElementById('roomListContainer');
+
+            if (!modal) return;
+
+            // Show modal
+            modal.classList.remove('hidden');
+
+            // Set date label
+            modalDateLabel.textContent = currentSelectedDate.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // Show loading state
+            roomListContainer.innerHTML = `
+                <div class="text-center text-gray-400 py-8">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <p class="text-sm">Memuat data ruangan...</p>
+                </div>
+            `;
+
+            try {
+                // Fetch all rooms if not already loaded
+                if (allRooms.length === 0) {
+                    allRooms = await apiCall('/ruangan');
+                }
+
+                // Get room availability for selected date
+                const roomsWithStatus = getRoomStatusForDate(currentSelectedDate);
+
+                // Render room cards
+                renderRoomCards(roomsWithStatus);
+            } catch (error) {
+                console.error('Error loading room availability:', error);
+                roomListContainer.innerHTML = `
+                    <div class="text-center text-red-500 py-8">
+                        <p class="text-sm">Gagal memuat data ruangan</p>
+                    </div>
+                `;
+            }
+        }
+
+        function closeRoomModal() {
+            const modal = document.getElementById('roomAvailabilityModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function getRoomStatusForDate(date) {
+            const dateKey = formatDateKey(date.getFullYear(), date.getMonth(), date.getDate());
+            const schedulesOnDate = allSchedules.filter(s =>
+                s.tanggal_mulai &&
+                s.tanggal_mulai.startsWith(dateKey) &&
+                s.status !== 'REJECTED' &&
+                s.status !== 'CANCELLED'
+            );
+
+            return allRooms.map(room => {
+                const booking = schedulesOnDate.find(s => s.kode_ruangan === room.kode_ruangan);
+
+                return {
+                    ...room,
+                    status: booking ? booking.status : 'AVAILABLE',
+                    booking: booking || null
+                };
+            });
+        }
+
+        function renderRoomCards(roomsWithStatus) {
+            const container = document.getElementById('roomListContainer');
+
+            if (roomsWithStatus.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <p class="text-sm">Tidak ada data ruangan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = roomsWithStatus.map(room => {
+                let statusBadge, statusColor;
+
+                if (room.status === 'AVAILABLE') {
+                    statusBadge = 'AVAILABLE';
+                    statusColor = 'bg-gray-100 text-gray-700 border-gray-200';
+                } else if (room.status === 'PENDING') {
+                    statusBadge = 'BOOKED';
+                    statusColor = 'bg-orange-100 text-orange-700 border-orange-200';
+                } else if (room.status === 'APPROVED') {
+                    statusBadge = 'APPROVED';
+                    statusColor = 'bg-green-100 text-green-700 border-green-200';
+                } else {
+                    statusBadge = room.status;
+                    statusColor = 'bg-gray-100 text-gray-700 border-gray-200';
+                }
+
+                return `
+                    <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-900 text-base">${room.nama_ruangan}</h4>
+                                <p class="text-sm text-gray-500">${room.lokasi || 'Lokasi tidak tersedia'}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Kapasitas: ${room.kapasitas || '-'} orang</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor} border flex-shrink-0">
+                                ${statusBadge}
+                            </span>
+                        </div>
+                        ${room.booking ? `
+                            <div class="mt-3 pt-3 border-t border-gray-100 space-y-1">
+                                <div class="flex items-center gap-2 text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>${formatTime(room.booking.tanggal_mulai)} - ${formatTime(room.booking.tanggal_selesai)}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-gray-600">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>${room.booking.peminjam || '-'}</span>
+                                </div>
+                                ${room.booking.kegiatan ? `
+                                    <div class="flex items-center gap-2 text-xs text-gray-600">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                        <span>${room.booking.kegiatan.nama_kegiatan}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
         }
 
         // Initialize
