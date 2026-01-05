@@ -177,7 +177,6 @@
         const MAX_SURAT_SIZE = 2 * 1024 * 1024; // 2MB
         const SURAT_PLACEHOLDER = "uploaded-via-form";
         let suratFile = null;
-        let bookedSlots = []; // Slot waktu yang sudah dibooking
         const suratInput = document.getElementById('surat_file');
         const suratError = document.getElementById('suratError');
         const suratInfo = document.getElementById('suratInfo');
@@ -217,17 +216,12 @@
         });
 
         // --- 1. CONFIG FLATPICKR TANGGAL ---
-        // Batasan: maksimal 14 hari ke depan dari hari ini
-        const maxDate = new Date();
-        maxDate.setDate(maxDate.getDate() + 14);
-
         flatpickr("#selected_dates", {
             mode: "multiple",
             dateFormat: "Y-m-d",
             altInput: true,
             altFormat: "j F Y",
             minDate: "today",
-            maxDate: maxDate, // Batasan 14 hari ke depan
             locale: "id",
             onChange: function (selectedDates) {
                 selectedDateObjects = selectedDates;
@@ -255,12 +249,7 @@
 
             dates.forEach((date, index) => {
                 const dateLabel = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-                // PENTING: Jangan gunakan toISOString() karena akan konversi ke UTC
-                // Gunakan getFullYear/Month/Date untuk mendapat tanggal lokal
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const dateISO = `${year}-${month}-${day}`;
+                const dateISO = date.toISOString().split('T')[0];
 
                 const row = document.createElement('div');
                 row.className = "bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center gap-4 animate-fade-in";
@@ -338,47 +327,6 @@
             } catch (error) { console.error(error); }
         }
 
-        // --- FETCH BOOKED SLOTS UNTUK RUANGAN ---
-        async function fetchBookedSlots(kodeRuangan) {
-            if (!kodeRuangan) {
-                bookedSlots = [];
-                return;
-            }
-            const today = new Date().toISOString().split('T')[0];
-            const maxDate = new Date();
-            maxDate.setDate(maxDate.getDate() + 14);
-            const end = maxDate.toISOString().split('T')[0];
-
-            try {
-                const data = await apiCall(`/peminjaman/booked-slots?ruangan=${kodeRuangan}&start=${today}&end=${end}`);
-                bookedSlots = data.slots || [];
-            } catch (e) {
-                console.error('Gagal fetch booked slots:', e);
-                bookedSlots = [];
-            }
-        }
-
-        // --- CEK OVERLAP JADWAL ---
-        function checkTimeOverlap(tanggalMulai, tanggalSelesai) {
-            const start = new Date(tanggalMulai);
-            const end = new Date(tanggalSelesai);
-
-            for (const slot of bookedSlots) {
-                const slotStart = new Date(slot.tanggal_mulai);
-                const slotEnd = new Date(slot.tanggal_selesai);
-                // Check overlap: start < slotEnd && end > slotStart
-                if (start < slotEnd && end > slotStart) {
-                    return { hasOverlap: true, slot };
-                }
-            }
-            return { hasOverlap: false };
-        }
-
-        // Event listener saat ruangan dipilih
-        document.getElementById('ruangan_id').addEventListener('change', async (e) => {
-            await fetchBookedSlots(e.target.value);
-        });
-
         async function loadBarang() {
             try { barangs = await apiCall('/barang'); }
             catch (error) { console.error(error); }
@@ -440,22 +388,6 @@
                     showToast(`Jam selesai harus lebih besar dari jam mulai pada tanggal ke-${i + 1}.`, 'error');
                     return;
                 }
-
-                // Cek overlap dengan booking yang sudah ada
-                const kodeRuangan = formData.get('ruangan_id');
-                if (kodeRuangan) {
-                    const dateVal = document.querySelector(`input[name="date_val_${i}"]`).value;
-                    const fullStartDate = new Date(`${dateVal}T${startVal}:00`);
-                    const fullEndDate = new Date(`${dateVal}T${endVal}:00`);
-
-                    const overlapCheck = checkTimeOverlap(fullStartDate.toISOString(), fullEndDate.toISOString());
-                    if (overlapCheck.hasOverlap) {
-                        const conflictStart = new Date(overlapCheck.slot.tanggal_mulai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                        const conflictEnd = new Date(overlapCheck.slot.tanggal_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                        showToast(`Jadwal pada tanggal ke-${i + 1} bentrok dengan booking lain (${conflictStart} - ${conflictEnd}).`, 'error');
-                        return;
-                    }
-                }
             }
 
             // Collect Barang
@@ -483,15 +415,14 @@
                     const startVal = document.getElementById(`start_${i}`).value; // HH:mm
                     const endVal = document.getElementById(`end_${i}`).value;   // HH:mm
 
-                    // Gabung Tanggal + Jam sebagai waktu lokal TANPA timezone suffix
-                    // PostgreSQL TIMESTAMP (without time zone) akan menyimpan as-is
-                    const fullStartISO = `${dateVal}T${startVal}:00`;
-                    const fullEndISO = `${dateVal}T${endVal}:00`;
+                    // Gabung Tanggal + Jam
+                    const fullStartDate = new Date(`${dateVal}T${startVal}:00`);
+                    const fullEndDate = new Date(`${dateVal}T${endVal}:00`);
 
                     const payload = {
                         kode_ruangan: formData.get('ruangan_id') || null,
-                        tanggal_mulai: fullStartISO,
-                        tanggal_selesai: fullEndISO,
+                        tanggal_mulai: fullStartDate.toISOString(),
+                        tanggal_selesai: fullEndDate.toISOString(),
                         nama_kegiatan: formData.get('nama_kegiatan'),
                         deskripsi: formData.get('deskripsi') || '',
                         surat_digital_url: SURAT_PLACEHOLDER,
