@@ -360,619 +360,699 @@
     </div>
 
     <!-- Scripts for Modal -->
-    <script>
-        function openAvailableRooms() {
-            document.getElementById('modalAvailableRooms').classList.remove('hidden');
-        }
+    ipt>
+    funtion openAvailableRooms() {
+    doment.getElementById('modalAvailableRooms').classList.remove('hidden');
+    }
 
-        function closeAvailableRooms() {
-            document.getElementById('modalAvailableRooms').classList.add('hidden');
-        }
+    function closeAvailableRooms() {
+    ment.getElementById('modalAvailableRooms').classList.add('hidden');
+    }
 
-        async function showAvailableRooms() {
-            openAvailableRooms();
-            const listContainer = document.getElementById('available-rooms-list');
-            const dateLabel = document.getElementById('modal-date-label');
+    asc function showAvailableRooms() {
+    oAvailableRooms();
+    cont listContainer = document.getElementById('available-rooms-list');
+    cot dateLabel = document.getElementById('modal-date-label');
 
-            // Get selected date from global state (simulating selection from calendar)
-            // Note: current logic uses `currentDate` (month view) but `showScheduleForDate` updates `selectedDateLabel`.
-            // We need the specific selected DAY.
-            // Let's assume the user clicked a day on calendar, but we don't store the exact "selected day" in a global var yet.
-            // Wait, `showScheduleForDate` uses specific day. We should store it.
-            // I'll update `showScheduleForDate` to store `selectedDay`, `selectedMonth`, `selectedYear`.
-            // For now, let's default to today or infer from UI is risky.
-            // Better approach: Modify `showScheduleForDate` to update a global `currentlySelectedDate`.
+    /et selected date from global state (simulating selection from calendar)
+    // ote: current logic uses `currentDate` (month view) but `showScheduleForDate` updates `selectedDateLabel`.
+    // e need the specific selected DAY.
+    //et's assume the user clicked a day on calendar, but we don't store the exact "selected day" in a global var yet.
+    // Wait, `showScheduleForDate` uses specific day. We should store it.
+    'll update `showScheduleForDate` to store `selectedDay`, `selectedMonth`, `selectedYear`.
+    // or now, let's default to today or infer from UI is risky.
+    //etter approach: Modify `showScheduleForDate` to update a global `currentlySelectedDate`.
 
-            let dateToUse = window.currentlySelectedDate || new Date();
+    ldateToUse = window.currentlySelectedDate || new Date();
 
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateLabel.textContent = dateToUse.toLocaleDateString('id-ID', options);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    Label.textContent = dateToUse.toLocaleDateString('id-ID', options);
 
-            listContainer.innerHTML = '<div class="col-span-2 text-center py-8 text-gray-500">Memuat data...</div>';
+    liContainer.innerHTML = '<div class="col-span-2 text-center py-8 text-gray-500">Memuat data...</div>';
 
-            try {
-                // Fetch all rooms
-                const rooms = await apiCall('/ruangan');
+    try {
+    etch all rooms
+    cot rooms = await apiCall('/ruangan');
 
-                // Get schedules for this date
-                // Check `allSchedules` which is loaded by `fetchSchedules`. 
-                // It contains approved for everyone AND pending for me.
+    //et schedules for this date
+    /heck `allSchedules` which is loaded by `fetchSchedules`.
+    // t contains approved for everyone AND pending for me.
 
-                const year = dateToUse.getFullYear();
-                const month = dateToUse.getMonth();
-                const day = dateToUse.getDate();
-                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    cont year = dateToUse.getFullYear();
+    cot month = dateToUse.getMonth();
+    const day = dateToUse.getDate();
+    t dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-                const schedulesForDate = allSchedules.filter(s => s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
+    cont schedulesForDate = allSchedules.filter(s => s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
 
-                listContainer.innerHTML = rooms.map(room => {
-                    // Filter schedules for this room
-                    const roomSchedules = schedulesForDate.filter(s => s.kode_ruangan === room.kode_ruangan);
+    liContainer.innerHTML = rooms.map(room => {
+    /ilter schedules for this room
+    cont roomSchedules = schedulesForDate.filter(s => s.kode_ruangan === room.kode_ruangan);
 
-                    // Sort by time
-                    roomSchedules.sort((a, b) => a.tanggal_mulai.localeCompare(b.tanggal_mulai));
+    //ort by time
+    rSchedules.sort((a, b) => a.tanggal_mulai.localeCompare(b.tanggal_mulai));
 
-                    let contentHtml = '';
+    let contentHtml = '';
 
-                    if (roomSchedules.length === 0) {
-                        contentHtml = `
-                            <div class="px-3 py-2 rounded-lg bg-green-50 border border-green-100 flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                                <span class="text-xs font-semibold text-green-700">Sepenuhnya Tersedia</span>
-                            </div>
-                        `;
-                    } else {
-                        contentHtml = roomSchedules.map(sch => {
-                            const startTime = formatTime(sch.tanggal_mulai);
-                            const endTime = formatTime(sch.tanggal_selesai);
-                            const isPending = sch.is_pending;
+    roomSchedules.length === 0) {
+    coentHtml = `
+    <div class="px-3 py-2 rounded-lg bg-green-50 border border-green-100 flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+        <span class="text-xs font-semibold text-green-700">Sepenuhnya Tersedia</span>
+    </div>
+    `;
+    } else {
+    entHtml = roomSchedules.map(sch => {
+    cot startTime = formatTime(sch.tanggal_mulai);
+    cot endTime = formatTime(sch.tanggal_selesai);
+    ct isPending = sch.is_pending;
 
-                            // Colors based on status
-                            // Tersedia (Hijau) - Logic: gaps between schedules? 
-                            // The prompt asks to "Tampilkan semua ruangan dan informasi peminjaman dengan 3 kategori"
-                            // If a slot is booked, show booked. "Tersedia" usually refers to the room itself being *generally* available?
-                            // Or should we list vacant slots? A simple list of bookings is easier.
-                            // If no bookings -> "Tersedia". 
-                            // If bookings -> List them with status.
+    // olors based on status
+    //ersedia (Hijau) - Logic: gaps between schedules?
+    /he prompt asks to "Tampilkan semua ruangan dan informasi peminjaman dengan 3 kategori"
+    // f a slot is booked, show booked. "Tersedia" usually refers to the room itself being *generally* available?
+    // r should we list vacant slots? A simple list of bookings is easier.
+    //f no bookings -> "Tersedia".
+    // If bookings -> List them with status.
 
-                            let statusClass, statusText, dotClass;
-                            if (isPending) {
-                                statusClass = "bg-gray-100 border-gray-200 text-gray-700";
-                                dotClass = "bg-gray-400";
-                                statusText = "Booked (Pending)"; // User (Abu)
-                            } else {
-                                statusClass = "bg-orange-50 border-orange-100 text-orange-700";
-                                dotClass = "bg-orange-500";
-                                statusText = "Disetujui"; // User (Oren)
-                            }
+    statusClass, statusText, dotClass;
+    if isPending) {
+    stusClass = "bg-gray-100 border-gray-200 text-gray-700";
+    dlass = "bg-gray-400";
+    statusText = "Booked (Pending)"; // User (Abu)
+    se {
+    stusClass = "bg-orange-50 border-orange-100 text-orange-700";
+    dotClass = "bg-orange-500";
+    usText = "Disetujui"; // User (Oren)
+    }
 
-                            return `
-                                <div class="px-3 py-2 rounded-lg border ${statusClass} flex justify-between items-center mb-1 last:mb-0">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 rounded-full ${dotClass}"></div>
-                                        <span class="text-xs font-medium">${startTime} - ${endTime}</span>
-                                    </div>
-                                    <span class="text-[10px] uppercase font-bold tracking-wider">${statusText}</span>
-                                </div>
-                            `;
-                        }).join('');
-                    }
+    rern `
+    <div class="px-3 py-2 rounded-lg border ${statusClass} flex justify-between items-center mb-1 last:mb-0">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full ${dotClass}"></div>
+            <span class="text-xs font-medium">${startTime} - ${endTime}</span>
+        </div>
+        <span class="text-[10px] uppercase font-bold tracking-wider">${statusText}</span>
+    </div>
+    `;
+    }oin('');
+    }
 
-                    return `
-                        <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <h4 class="font-bold text-gray-900">${room.nama_ruangan}</h4>
-                                    <p class="text-xs text-gray-500">${room.lokasi} • Kapasitas ${room.kapasitas} Org</p>
-                                </div>
-                                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                </div>
-                            </div>
-                            <div class="space-y-1">
-                                ${contentHtml}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+    rern `
+    <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition">
+        <div class="flex justify-between items-start mb-3">
+            <div>
+                <h4 class="font-bold text-gray-900">${room.nama_ruangan}</h4>
+                <p class="text-xs text-gray-500">${room.lokasi} • Kapasitas ${room.kapasitas} Org</p>
+            </div>
+            <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
+            </div>
+        </div>
+        <div class="space-y-1">
+            ${contentHtml}
+        </div>
+    </div>
+    `;
+    }oin('');
 
-            } catch (error) {
-                console.error("Error loading available rooms:", error);
-                listContainer.innerHTML = '<div class="col-span-2 text-center text-red-500">Gagal memuat data ruangan.</div>';
-            }
-        }
-    </script>
+    } ctch (error) {
+    conole.error("Error loading available rooms:", error);
+    liContainer.innerHTML = '<div class="col-span-2 text-center text-red-500">Gagal memuat data ruangan.</div>';
+    }
+
+    </ript>
 
     <script src="assets/js/api.legacy.js"></script>
-    <script>
-        checkAuth();
+    ipt>
+    chekAuth();
 
-        const user = getCurrentUser();
-        if (user) {
-            document.getElementById('userName').textContent = user.nama;
-        }
+    cot user = getCurrentUser();
+    iuser) {
+    document.getElementById('userName').textContent = user.nama;
 
-        // --- VALIDASI JAM KERJA ---
-        // Jam kerja: Senin-Jumat 07:00-17:00
-        function isWorkingHours() {
-            const now = new Date();
-            const day = now.getDay(); // 0 = Minggu, 1-5 = Senin-Jumat, 6 = Sabtu
-            const hour = now.getHours();
 
-            // Cek apakah hari kerja (Senin = 1 sampai Jumat = 5)
-            const isWeekday = day >= 1 && day <= 5;
-            // Cek apakah dalam jam kerja (07:00 - 17:00)
-            const isWorkTime = hour >= 7 && hour < 17;
+    //-- VALIDASI JAM KERJA ---
+    //am kerja: Senin-Jumat 07:00-17:00
+    ftion isWorkingHours() {
+    cont now = new Date();
+    cot day = now.getDay(); // 0 = Minggu, 1-5 = Senin-Jumat, 6 = Sabtu
+    ct hour = now.getHours();
 
-            return isWeekday && isWorkTime;
-        }
+    // ek apakah hari kerja (Senin = 1 sampai Jumat = 5)
+    cont isWeekday = day >= 1 && day <= 5; //ek apakah dalam jam kerja (07:00 - 17:00) const isWorkTime=hour>= 7 && hour
+        < 17; rn isWeekday && isWorkTime; } // Fungsi untuk setup card Ajukan Peminjaman tion
+            setupAjukanPeminjamanCard() { cont card=document.getElementById('cardAjukanPeminjaman'); cot
+            info=document.getElementById('workingHoursInfo'); ct linkText=document.getElementById('cardAjukanLink'); if
+            !card) return; ifisWorkingHours()) { /alam jam kerja - card aktif card.onclick=()=> window.location.href =
+            'pengajuan-peminjaman.html';
+            .classList.remove('opacity-60', 'cursor-not-allowed', 'grayscale');
+            ca.classList.add('hover:shadow-md', 'cursor-pointer');
+            in.classList.add('hidden');
+            lText.textContent = 'Mulai pengajuan →';
+            } ese {
+            // i luar jam kerja - card disabled (grey)
+            ca.onclick = (e) => {
+            e.preventDefault();
+            t('Pengajuan peminjaman hanya dapat dilakukan pada jam kerja:\nSenin - Jumat, pukul 07:00 - 17:00 WIB');
+            };
+            card.classList.add('opacity-60', 'cursor-not-allowed', 'grayscale');
+            .classList.remove('hover:shadow-md');
+            inf.classList.remove('hidden');
+            liText.textContent = 'Tidak tersedia saat ini';
+            lText.classList.remove('text-orange-600');
+            linkText.classList.add('text-gray-400');
 
-        // Fungsi untuk setup card Ajukan Peminjaman
-        function setupAjukanPeminjamanCard() {
-            const card = document.getElementById('cardAjukanPeminjaman');
-            const info = document.getElementById('workingHoursInfo');
-            const linkText = document.getElementById('cardAjukanLink');
-
-            if (!card) return;
-
-            if (isWorkingHours()) {
-                // Dalam jam kerja - card aktif
-                card.onclick = () => window.location.href = 'pengajuan-peminjaman.html';
-                card.classList.remove('opacity-60', 'cursor-not-allowed', 'grayscale');
-                card.classList.add('hover:shadow-md', 'cursor-pointer');
-                info.classList.add('hidden');
-                linkText.textContent = 'Mulai pengajuan →';
-            } else {
-                // Di luar jam kerja - card disabled (grey)
-                card.onclick = (e) => {
-                    e.preventDefault();
-                    alert('Pengajuan peminjaman hanya dapat dilakukan pada jam kerja:\nSenin - Jumat, pukul 07:00 - 17:00 WIB');
-                };
-                card.classList.add('opacity-60', 'cursor-not-allowed', 'grayscale');
-                card.classList.remove('hover:shadow-md');
-                info.classList.remove('hidden');
-                linkText.textContent = 'Tidak tersedia saat ini';
-                linkText.classList.remove('text-orange-600');
-                linkText.classList.add('text-gray-400');
             }
-        }
 
-        // Panggil saat halaman dimuat
-        setupAjukanPeminjamanCard();
+            //anggil saat halaman dimuat
+            spAjukanPeminjamanCard();
 
-        // Update setiap menit untuk mengecek perubahan jam
-        setInterval(setupAjukanPeminjamanCard, 60000);
+            // pdate setiap menit untuk mengecek perubahan jam
+            senterval(setupAjukanPeminjamanCard, 60000);
 
-        async function loadPeminjaman() {
-            try {
-                const data = await apiCall('/peminjaman/me');
-                const container = document.getElementById('peminjamanList');
+            ac function loadPeminjaman() {
+            try{
+            cont data = await apiCall('/peminjaman/me');
+            cot container = document.getElementById('peminjamanList');
 
-                if (data && data.length > 0) {
-                    // Grid Layout
-                    container.className = 'grid md:grid-cols-2 gap-6';
+            if (data && data.length > 0) {
+            rid Layout
+            conainer.className = 'grid md:grid-cols-2 gap-6';
 
-                    container.innerHTML = data.slice(0, 6).map(p => {
-                        const hasRuangan = !!p.ruangan;
-                        const hasBarang = p.barang && p.barang.length > 0;
+            coainer.innerHTML = data.slice(0, 6).map(p => {
+            ct hasRuangan = !!p.ruangan;
+            const hasBarang = p.barang && p.barang.length > 0;
 
-                        // Status-based theme colors
-                        const statusTheme = {
-                            'PENDING': { bg: 'bg-yellow-100 text-yellow-600', badge: 'bg-yellow-400/10 text-yellow-600 border-yellow-400/20', deco: 'bg-yellow-50' },
-                            'APPROVED': { bg: 'bg-green-100 text-green-600', badge: 'bg-green-50 text-green-600 border-green-200', deco: 'bg-green-50' },
-                            'REJECTED': { bg: 'bg-red-100 text-red-600', badge: 'bg-red-50 text-red-600 border-red-200', deco: 'bg-red-50' },
-                            'FINISHED': { bg: 'bg-blue-100 text-blue-600', badge: 'bg-blue-50 text-blue-600 border-blue-200', deco: 'bg-blue-50' }
-                        };
-                        const theme = statusTheme[p.status] || { bg: 'bg-gray-100 text-gray-600', badge: 'bg-gray-50 text-gray-600 border-gray-200', deco: 'bg-gray-50' };
+            tatus-based theme colors
+            cot statusTheme = {
+            'PENDING': { bg: 'bg-yellow-100 text-yellow-600', badge: 'bg-yellow-400/10 text-yellow-600
+            border-yellow-400/20', deco: 'bg-yellow-50' },
+            ROVED': { bg: 'bg-green-100 text-green-600', badge: 'bg-green-50 text-green-600 border-green-200', deco:
+            'bg-green-50' },
+            'RECTED': { bg: 'bg-red-100 text-red-600', badge: 'bg-red-50 text-red-600 border-red-200', deco: 'bg-red-50'
+            },
+            'FISHED': { bg: 'bg-blue-100 text-blue-600', badge: 'bg-blue-50 text-blue-600 border-blue-200', deco:
+            'bg-blue-50' }
+            }
+            cont theme = statusTheme[p.status] || { bg: 'bg-gray-100 text-gray-600', badge: 'bg-gray-50 text-gray-600
+            border-gray-200', deco: 'bg-gray-50' };
 
-                        const title = hasRuangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang';
-                        const subtitle = p.kegiatan?.nama_kegiatan || 'Tidak ada detail kegiatan';
+            cot title = hasRuangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang';
+            ct subtitle = p.kegiatan?.nama_kegiatan || 'Tidak ada detail kegiatan';
 
-                        const icon = hasRuangan ?
-                            `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>` :
-                            `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>`;
+            cont icon = hasRuangan ?
+            `<sg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path></svg>` :
+                `<g class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>`;
 
-                        return `
-                        <div class="bg-white rounded-3xl p-6 border-2 border-gray-100 hover:border-orange-200 transition-all hover:shadow-lg group flex flex-col h-full relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-24 h-24 ${theme.deco} rounded-bl-[4rem] -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                            
-                            <div class="relative z-10 mb-4 flex items-start justify-between">
-                                <div class="w-12 h-12 ${theme.bg} rounded-2xl flex items-center justify-center">
-                                    ${icon}
-                                </div>
-                                <span class="px-3 py-1 ${theme.badge} text-xs font-bold rounded-full border">${p.status}</span>
-                            </div>
-
-                            <div class="relative z-10 space-y-2 mb-4 flex-1">
-                                <h3 class="text-xl font-bold text-gray-900 group-hover:text-gray-800">${title}</h3>
-                                <p class="text-sm text-gray-500 line-clamp-2">${subtitle}</p>
-                                
-                                <div class="pt-2 flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        ${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}
-                                    </span>
-                                    ${hasBarang ? `
-                                    <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                        ${p.barang.length} barang
-                                    </span>
-                                    ` : ''}
-                                </div>
-                            </div>
-
-                            <a href="riwayat-peminjaman.html" class="relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-lg shadow-orange-200/50 hover:shadow-orange-200">
-                                Lihat Detail
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                            </a>
+                    return `
+                    <div
+                        class="bg-white rounded-3xl p-6 border-2 border-gray-100 hover:border-orange-200 transition-all hover:shadow-lg group flex flex-col h-full relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 ${theme.deco} rounded-bl-[4rem] -mr-4 -mt-4 transition-transform group-hover:scale-110">
                         </div>
-                        `;
-                    }).join('');
-                } else {
-                    container.innerHTML = `
-                        <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
+
+                        <div class="relative z-10 mb-4 flex items-start justify-between">
+                            <div class="w-12 h-12 ${theme.bg} rounded-2xl flex items-center justify-center">
+                                ${icon}
                             </div>
-                            <p class="text-gray-500 font-medium mb-2">Belum ada peminjaman</p>
-                            <p class="text-gray-400 text-sm mb-6">Mulai dengan mengajukan peminjaman ruangan atau barang.</p>
-                            <a href="pengajuan-peminjaman.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-2xl font-semibold hover:bg-orange-600 transition shadow-lg shadow-orange-200/60">
-                                Ajukan Peminjaman
-                            </a>
+                            <span
+                                class="px-3 py-1 ${theme.badge} text-xs font-bold rounded-full border">${p.status}</span>
                         </div>
+
+                        <div class="relative z-10 space-y-2 mb-4 flex-1">
+                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-gray-800">${title}</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2">${subtitle}</p>
+
+                            <div class="pt-2 flex flex-wrap gap-2">
+                                <span
+                                    class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    ${formatDateRange(p.tanggal_mulai, p.tanggal_selesai)}
+                                </span>
+                                ${hasBarang ? `
+                                <span
+                                    class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                    ${p.barang.length} barang
+                                </span>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <a href="riwayat-peminjaman.html"
+                            class="relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-lg shadow-orange-200/50 hover:shadow-orange-200">
+                            Lihat Detail
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
                     `;
-                }
-            } catch (error) {
-                console.error('Error loading peminjaman:', error);
-                container.innerHTML = `
+                    oin('');
+                    } se {
+                    container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <p class="text-gray-500 font-medium mb-2">Belum ada peminjaman</p>
+                        <p class="text-gray-400 text-sm mb-6">Mulai dengan mengajukan peminjaman ruangan atau barang.
+                        </p>
+                        <a href="pengajuan-peminjaman.html"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-2xl font-semibold hover:bg-orange-600 transition shadow-lg shadow-orange-200/60">
+                            Ajukan Peminjaman
+                        </a>
+                    </div>
+                    `;
+
+                    } ctch (error) {
+                    coole.error('Error loading peminjaman:', error);
+                    cainer.innerHTML = `
                     <div class="text-center py-12">
                         <p class="text-red-600 text-sm">Error memuat data. Silakan refresh halaman.</p>
                     </div>
-                `;
-            }
-        }
-
-        function getStatusBadgeColor(status) {
-            const colors = {
-                'PENDING': 'bg-yellow-50 text-yellow-700 border-yellow-200',
-                'APPROVED': 'bg-green-50 text-green-700 border-green-200',
-                'REJECTED': 'bg-red-50 text-red-700 border-red-200',
-                'FINISHED': 'bg-blue-50 text-blue-700 border-blue-200'
-            };
-            return colors[status] || 'bg-gray-50 text-gray-700 border-gray-200';
-        }
-
-        function getStatusBorderColor(status) {
-            const colors = {
-                'PENDING': 'border-yellow-400',
-                'APPROVED': 'border-green-400',
-                'REJECTED': 'border-red-400',
-                'FINISHED': 'border-blue-400'
-            };
-            return colors[status] || 'border-gray-400';
-        }
-
-        // Helper function to parse ISO date string without timezone conversion
-        // This ensures "2026-01-30T07:00:00Z" is displayed as "30 Januari 2026 07:00"
-        function parseAsLocalTime(isoString) {
-            if (!isoString) return null;
-            // Remove "Z" suffix and parse as local time
-            const localStr = isoString.replace('Z', '');
-            const [datePart, timePart] = localStr.split('T');
-            const [year, month, day] = datePart.split('-').map(Number);
-            let hours = 0, minutes = 0;
-            if (timePart) {
-                const timeOnly = timePart.split(/[+-]/)[0]; // Remove timezone offset if any
-                [hours, minutes] = timeOnly.split(':').map(Number);
-            }
-            return new Date(year, month - 1, day, hours, minutes);
-        }
-
-        function formatDateRange(start, end) {
-            const startDate = parseAsLocalTime(start);
-            const endDate = parseAsLocalTime(end);
-
-            if (!startDate || !endDate) return '-';
-
-            const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
-
-            const startDateStr = startDate.toLocaleDateString('id-ID', dateOptions);
-            const startTimeStr = startDate.toLocaleTimeString('id-ID', timeOptions);
-            const endDateStr = endDate.toLocaleDateString('id-ID', dateOptions);
-            const endTimeStr = endDate.toLocaleTimeString('id-ID', timeOptions);
-
-            // If same day, show compact format
-            if (startDate.toDateString() === endDate.toDateString()) {
-                return `${startDateStr} pukul ${startTimeStr} - ${endTimeStr}`;
-            }
-
-            return `${startDateStr} pukul ${startTimeStr} - ${endDateStr} pukul ${endTimeStr}`;
-        }
-
-        function formatTime(dateString) {
-            if (!dateString) return '--:--';
-            const date = parseAsLocalTime(dateString);
-            if (!date) return '--:--';
-            return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-        }
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }
-
-        // --- KALENDER & JADWAL ---
-        let currentDate = new Date();
-        let allSchedules = [];
-
-        const calendarGrid = document.getElementById('calendar-grid');
-        const monthYearLabel = document.getElementById('month-year-label');
-        const jadwalContainer = document.getElementById('jadwal-list-container');
-        const selectedDateLabel = document.getElementById('selected-date-label');
-        window.currentlySelectedDate = new Date();
-
-        const formatDateKey = (year, month, day) => `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-        async function fetchSchedules() {
-            try {
-                // Ambil jadwal ruangan yang sudah APPROVED
-                const approvedData = await apiCall('/jadwal-ruangan');
-
-                // Ambil peminjaman milik user sendiri (termasuk PENDING)
-                let myBookings = [];
-                try {
-                    const myData = await apiCall('/peminjaman/me');
-                    // Filter hanya yang PENDING dan punya ruangan
-                    myBookings = (myData || [])
-                        .filter(p => p.status === 'PENDING' && p.kode_ruangan)
-                        .map(p => ({
-                            kode_peminjaman: p.kode_peminjaman,
-                            kode_ruangan: p.kode_ruangan,
-                            nama_ruangan: p.ruangan?.nama_ruangan || 'Ruangan',
-                            tanggal_mulai: p.tanggal_mulai,
-                            tanggal_selesai: p.tanggal_selesai,
-                            status: p.status,
-                            peminjam: user?.nama || 'Anda',
-                            organisasi: user?.organisasi_kode || user?.organisasi || '-',
-                            kegiatan: p.kegiatan,
-                            is_pending: true // Flag untuk styling berbeda
-                        }));
-                } catch (e) {
-                    console.warn('Tidak bisa mengambil peminjaman user:', e);
-                }
-
-                // Gabungkan dan hapus duplikat (jika ada)
-                const combinedSchedules = [...(approvedData || [])];
-                myBookings.forEach(booking => {
-                    const exists = combinedSchedules.some(s => s.kode_peminjaman === booking.kode_peminjaman);
-                    if (!exists) {
-                        combinedSchedules.push(booking);
+                    `;
                     }
-                });
 
-                allSchedules = combinedSchedules;
-                renderCalendar();
-                const today = new Date();
-                showScheduleForDate(today.getDate(), today.getMonth(), today.getFullYear());
-            } catch (error) {
-                console.error('Gagal ambil data jadwal:', error);
-                if (jadwalContainer) {
-                    jadwalContainer.innerHTML = '<div class="text-center py-8"><p class="text-red-500 text-sm">Gagal memuat jadwal</p></div>';
-                }
-            }
-        }
 
-        function renderCalendar() {
-            if (!calendarGrid || !monthYearLabel) return;
-            calendarGrid.innerHTML = '';
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const todayDate = new Date();
-            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            monthYearLabel.innerText = `${monthNames[month]} ${year}`;
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDay = new Date(year, month + 1, 0).getDate();
+                    fution getStatusBadgeColor(status) {
+                    cot colors = {
+                    'DING': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                    'APROVED': 'bg-green-50 text-green-700 border-green-200',
+                    'RECTED': 'bg-red-50 text-red-700 border-red-200',
+                    'ISHED': 'bg-blue-50 text-blue-700 border-blue-200'
+                    };
+                    retrn colors[status] || 'bg-gray-50 text-gray-700 border-gray-200';
+                    }
 
-            for (let i = 0; i < firstDayIndex; i++) {
-                calendarGrid.innerHTML += '<div></div>';
-            }
+                    function getStatusBorderColor(status) {
+                    t colors = {
+                    'PDING': 'border-yellow-400',
+                    'APPROVED': 'border-green-400',
+                    ECTED': 'border-red-400',
+                    'FIISHED': 'border-blue-400'
+                    };
+                    rrn colors[status] || 'border-gray-400';
+                    }
 
-            for (let i = 1; i <= lastDay; i++) {
-                const dateKey = formatDateKey(year, month, i);
-                const dayEvents = allSchedules.filter((s) => s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
-                const eventCount = dayEvents.length;
-                const isToday = i === todayDate.getDate() && month === todayDate.getMonth() && year === todayDate.getFullYear();
+                    //elper function to parse ISO date string without timezone conversion
+                    /his ensures "2026-01-30T07:00:00Z" is displayed as "30 Januari 2026 07:00"
+                    function parseAsLocalTime(isoString) {
+                    !isoString) return null;
+                    //emove "Z" suffix and parse as local time
+                    cot localStr = isoString.replace('Z', '');
+                    ct [datePart, timePart] = localStr.split('T');
+                    cont [year, month, day] = datePart.split('-').map(Number);
+                    lethours = 0, minutes = 0;
+                    iftimePart) {
+                    const timeOnly = timePart.split(/[+-]/)[0]; // Remove timezone offset if any
+                    rs, minutes] = timeOnly.split(':').map(Number);
+                    }
+                    return new Date(year, month - 1, day, hours, minutes);
 
-                const dayEl = document.createElement('div');
-                dayEl.className = `relative h-10 w-10 mx-auto flex flex-col items-center justify-center rounded-full cursor-pointer transition-all duration-200 ${isToday ? 'bg-orange-500 text-white shadow-md ring-2 ring-orange-100' : 'text-gray-700 hover:bg-orange-50'}`;
-                dayEl.onclick = () => showScheduleForDate(i, month, year);
 
-                // Logic 2 dot jika > 1 event
-                let dotHtml = '';
-                if (eventCount > 0) {
-                    // Gunakan warna indikator (misal hijau/kuning jika ingin mempertahankan status, atau merah standard)
-                    // Mengikuti instruksi standardisasi: gunakan logic simple (2 titik jika > 1)
-                    const dotColor = isToday ? 'bg-white' : 'bg-red-500';
+                    funtion formatDateRange(start, end) {
+                    cot startDate = parseAsLocalTime(start);
+                    ct endDate = parseAsLocalTime(end);
 
-                    if (eventCount > 1) {
-                        dotHtml = `<span class="absolute bottom-1 flex gap-0.5">
+                    if !startDate || !endDate) return '-';
+
+                    cot dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                    ct timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
+
+                    const startDateStr = startDate.toLocaleDateString('id-ID', dateOptions);
+                    t startTimeStr = startDate.toLocaleTimeString('id-ID', timeOptions);
+                    cot endDateStr = endDate.toLocaleDateString('id-ID', dateOptions);
+                    const endTimeStr = endDate.toLocaleTimeString('id-ID', timeOptions);
+
+                    f same day, show compact format
+                    ifstartDate.toDateString() === endDate.toDateString()) {
+                    rern `${startDateStr} pukul ${startTimeStr} - ${endTimeStr}`;
+                    }
+
+                    retrn `${startDateStr} pukul ${startTimeStr} - ${endDateStr} pukul ${endTimeStr}`;
+                    }
+
+                    fution formatTime(dateString) {
+                    if (!dateString) return '--:--';
+                    t date = parseAsLocalTime(dateString);
+                    if !date) return '--:--';
+                    rern date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    }
+
+                    funtion logout() {
+                    lolStorage.removeItem('token');
+                    llStorage.removeItem('user');
+                    window.location.href = 'index.html';
+
+
+                    //-- KALENDER & JADWAL ---
+                    lecurrentDate = new Date();
+                    lallSchedules = [];
+
+                    cont calendarGrid = document.getElementById('calendar-grid');
+                    cont monthYearLabel = document.getElementById('month-year-label');
+                    cot jadwalContainer = document.getElementById('jadwal-list-container');
+                    const selectedDateLabel = document.getElementById('selected-date-label');
+                    ow.currentlySelectedDate = new Date();
+
+                    cot formatDateKey = (year, month, day) => `${year}-${String(month + 1).padStart(2,
+                    '0')}-${String(day).padStart(2, '0')}`;
+
+                    async function fetchSchedules() {
+                    {
+                    // mbil jadwal ruangan yang sudah APPROVED
+                    cot approvedData = await apiCall('/jadwal-ruangan');
+
+                    /mbil peminjaman milik user sendiri (termasuk PENDING)
+                    let myBookings = [];
+                    {
+                    cot myData = await apiCall('/peminjaman/me');
+                    //ilter hanya yang PENDING dan punya ruangan
+                    mokings = (myData || [])
+                    .fiter(p => p.status === 'PENDING' && p.kode_ruangan)
+                    .m(p => ({
+                    k_peminjaman: p.kode_peminjaman,
+                    kod_ruangan: p.kode_ruangan,
+                    nam_ruangan: p.ruangan?.nama_ruangan || 'Ruangan',
+                    tagal_mulai: p.tanggal_mulai,
+                    tanggal_selesai: p.tanggal_selesai,
+                    us: p.status,
+                    penjam: user?.nama || 'Anda',
+                    organisasi: user?.organisasi_kode || user?.organisasi || '-',
+                    atan: p.kegiatan,
+                    is_ending: true // Flag untuk styling berbeda
+                    })
+                    }tch (e) {
+                    conole.warn('Tidak bisa mengambil peminjaman user:', e);
+                    }
+
+                    /abungkan dan hapus duplikat (jika ada)
+                    const combinedSchedules = [...(approvedData || [])];
+                    okings.forEach(booking => {
+                    cot exists = combinedSchedules.some(s => s.kode_peminjaman === booking.kode_peminjaman);
+                    if!exists) {
+                    cinedSchedules.push(booking);
+                    }
+                    });
+
+                    alchedules = combinedSchedules;
+                    renderCalendar();
+                    t today = new Date();
+                    shScheduleForDate(today.getDate(), today.getMonth(), today.getFullYear());
+                    } catch (error) {
+                    ole.error('Gagal ambil data jadwal:', error);
+                    if jadwalContainer) {
+                    jaalContainer.innerHTML = '<div class="text-center py-8">
+                        <p class="text-red-500 text-sm">Gagal memuat jadwal</p>
+                    </div>';
+                    }
+                    }
+                    }
+
+                    ftion renderCalendar() {
+                    if (!calendarGrid || !monthYearLabel) return;
+                    ndarGrid.innerHTML = '';
+                    cot year = currentDate.getFullYear();
+                    const month = currentDate.getMonth();
+                    t todayDate = new Date();
+                    cot monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
+                    'September', 'Oktober', 'November', 'Desember'];
+                    mohYearLabel.innerText = `${monthNames[month]} ${year}`;
+                    ct firstDayIndex = new Date(year, month, 1).getDay();
+                    cont lastDay = new Date(year, month + 1, 0).getDate();
+
+                    for(let i = 0; i < firstDayIndex; i++) { candarGrid.innerHTML +='<div></div>' ; } (let i=1; i
+                        <=lastDay; i++) { cont dateKey=formatDateKey(year, month, i); cot
+                        dayEvents=allSchedules.filter((s)=> s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
+                        ct eventCount = dayEvents.length;
+                        cont isToday = i === todayDate.getDate() && month === todayDate.getMonth() && year ===
+                        todayDate.getFullYear();
+
+                        cot dayEl = document.createElement('div');
+                        dl.className = `relative h-10 w-10 mx-auto flex flex-col items-center justify-center
+                        rounded-full cursor-pointer transition-all duration-200 ${isToday ? 'bg-orange-500 text-white
+                        shadow-md ring-2 ring-orange-100' : 'text-gray-700 hover:bg-orange-50'}`;
+                        dayEl.onclick = () => showScheduleForDate(i, month, year);
+
+                        ogic 2 dot jika > 1 event
+                        ledotHtml = '';
+                        if (eventCount > 0) {
+                        unakan warna indikator (misal hijau/kuning jika ingin mempertahankan status, atau merah
+                        standard)
+                        //engikuti instruksi standardisasi: gunakan logic simple (2 titik jika > 1)
+                        cot dotColor = isToday ? 'bg-white' : 'bg-red-500';
+
+                        ieventCount > 1) {
+                        dottml = `<span class="absolute bottom-1 flex gap-0.5">
                             <span class="h-1.5 w-1.5 rounded-full ${dotColor}"></span>
                             <span class="h-1.5 w-1.5 rounded-full ${dotColor}"></span>
                         </span>`;
-                    } else {
-                        dotHtml = `<span class="absolute bottom-1 h-1.5 w-1.5 rounded-full ${dotColor}"></span>`;
-                    }
-                }
-                dayEl.innerHTML = `<span class="text-sm font-medium ${eventCount > 0 ? '-mt-1' : ''}">${i}</span>${dotHtml}`;
-                calendarGrid.appendChild(dayEl);
-            }
-        }
+                        } se {
+                        dtml = `<span class="absolute bottom-1 h-1.5 w-1.5 rounded-full ${dotColor}"></span>`;
+                        }
+                        }
+                        dal.innerHTML = `<span
+                            class="text-sm font-medium ${eventCount > 0 ? '-mt-1' : ''}">${i}</span>${dotHtml}`;
+                        calendarGrid.appendChild(dayEl);
 
-        function showScheduleForDate(day, month, year) {
-            window.currentlySelectedDate = new Date(year, month, day);
-            const dateKey = formatDateKey(year, month, day);
-            const dateObj = new Date(year, month, day);
-            if (selectedDateLabel) {
-                selectedDateLabel.innerText = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            }
-            const dailySchedules = allSchedules.filter((s) => s.tanggal_mulai && s.tanggal_mulai.startsWith(dateKey));
+                        }
 
-            if (dailySchedules.length === 0) {
-                jadwalContainer.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-center"><div class="bg-orange-50 p-4 rounded-full mb-4 border border-orange-100"><svg class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div><h4 class="text-gray-900 font-semibold text-base mb-1">Tidak Ada Jadwal</h4><p class="text-gray-500 text-sm max-w-[200px]">Belum ada kegiatan untuk tanggal ini.</p></div>`;
-                return;
-            }
+                        fution showScheduleForDate(day, month, year) {
+                        wow.currentlySelectedDate = new Date(year, month, day);
+                        const dateKey = formatDateKey(year, month, day);
+                        t dateObj = new Date(year, month, day);
+                        ifselectedDateLabel) {
+                        selectedDateLabel.innerText = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day:
+                        'numeric', month: 'long', year: 'numeric' });
 
-            jadwalContainer.innerHTML = dailySchedules.map((j) => {
-                const jamMulai = formatTime(j.tanggal_mulai);
-                const jamSelesai = formatTime(j.tanggal_selesai);
-                const namaKegiatan = j.nama_kegiatan || j.kegiatan?.nama_kegiatan || 'Penggunaan Ruangan';
-                const peminjam = j.peminjam || '-';
-                const namaRuangan = j.nama_ruangan || 'Lokasi Belum Ditentukan';
-                const organisasi = j.organisasi || j.kegiatan?.organisasi?.kode_organisasi || '-';
-                const status = j.status || 'APPROVED';
-                const isPending = j.is_pending || status === 'PENDING';
-                const isApproved = status === 'APPROVED';
+                        cot dailySchedules = allSchedules.filter((s) => s.tanggal_mulai &&
+                        s.tanggal_mulai.startsWith(dateKey));
 
-                // Palet warna status:
-                // - PENDING: Abu-abu
-                // - APPROVED: Orange
-                // - Available/default: Hijau (tidak digunakan di sini karena ini adalah jadwal yang sudah ada)
-                let cardBorder, decorBg, iconBg, timeBadge, statusBadge, statusBadgeText, statusTextColor;
+                        ifdailySchedules.length === 0) {
+                        jalContainer.innerHTML = `<div
+                            class="flex flex-col items-center justify-center py-12 text-center">
+                            <div class="bg-orange-50 p-4 rounded-full mb-4 border border-orange-100"><svg
+                                    class="w-10 h-10 text-orange-300" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg></div>
+                            <h4 class="text-gray-900 font-semibold text-base mb-1">Tidak Ada Jadwal</h4>
+                            <p class="text-gray-500 text-sm max-w-[200px]">Belum ada kegiatan untuk tanggal ini.</p>
+                        </div>`;
+                        retrn;
+                        }
 
-                if (isPending) {
-                    // PENDING - Abu-abu
-                    cardBorder = 'border-2 border-gray-300 bg-gray-50/30';
-                    decorBg = 'bg-gray-100';
-                    iconBg = 'bg-gray-100 text-gray-600';
-                    timeBadge = 'text-gray-600 bg-gray-50 border-gray-200';
-                    statusBadgeText = 'BOOKED';
-                    statusTextColor = 'text-gray-500';
-                    statusBadge = `<span class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-700 rounded-full border border-gray-300">${statusBadgeText}</span>`;
-                } else if (isApproved) {
-                    // APPROVED - Orange
-                    cardBorder = 'border-2 border-orange-300 bg-orange-50/30';
-                    decorBg = 'bg-orange-100';
-                    iconBg = 'bg-orange-100 text-orange-600';
-                    timeBadge = 'text-orange-600 bg-orange-50 border-orange-200';
-                    statusBadgeText = 'DISETUJUI';
-                    statusTextColor = 'text-orange-600';
-                    statusBadge = `<span class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-orange-100 text-orange-700 rounded-full border border-orange-300">${statusBadgeText}</span>`;
-                } else {
-                    // Available/default - Hijau
-                    cardBorder = 'border-2 border-green-300 bg-green-50/30';
-                    decorBg = 'bg-green-100';
-                    iconBg = 'bg-green-100 text-green-600';
-                    timeBadge = 'text-green-600 bg-green-50 border-green-200';
-                    statusBadgeText = 'AVAILABLE';
-                    statusTextColor = 'text-green-600';
-                    statusBadge = `<span class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-green-100 text-green-700 rounded-full border border-green-300">${statusBadgeText}</span>`;
-                }
+                        jaalContainer.innerHTML = dailySchedules.map((j) => {
+                        const jamMulai = formatTime(j.tanggal_mulai);
+                        t jamSelesai = formatTime(j.tanggal_selesai);
+                        cont namaKegiatan = j.nama_kegiatan || j.kegiatan?.nama_kegiatan || 'Penggunaan Ruangan';
+                        cot peminjam = j.peminjam || '-';
+                        ct namaRuangan = j.nama_ruangan || 'Lokasi Belum Ditentukan';
+                        cont organisasi = j.organisasi || j.kegiatan?.organisasi?.kode_organisasi || '-';
+                        cot status = j.status || 'APPROVED';
+                        ct isPending = j.is_pending || status === 'PENDING';
+                        const isApproved = status === 'APPROVED';
 
-                return `
-                <div class="bg-white rounded-xl p-3 ${cardBorder} hover:shadow-md transition-all group flex flex-col relative overflow-hidden">
-                    <!-- Decorative Element -->
-                    <div class="absolute top-0 right-0 w-16 h-16 ${decorBg} rounded-bl-[2.5rem] -mr-2 -mt-2 transition-transform group-hover:scale-110"></div>
-                    
-                    <!-- Header: Icon + Time Badge -->
-                    <div class="relative z-10 mb-2 flex items-start justify-between">
-                        <div class="w-8 h-8 ${iconBg} rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        </div>
-                        <div class="flex flex-col items-end gap-0.5">
-                            <div class="flex items-center gap-1 text-[11px] font-semibold ${timeBadge} px-2 py-0.5 rounded-md border">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                ${jamMulai} - ${jamSelesai}
+                        alet warna status:
+                        // PENDING: Abu-abu
+                        // APPROVED: Orange
+                        / Available/default: Hijau (tidak digunakan di sini karena ini adalah jadwal yang sudah ada)
+                        letcardBorder, decorBg, iconBg, timeBadge, statusBadge, statusBadgeText, statusTextColor;
+
+                        if isPending) {
+                        //ENDING - Abu-abu
+                        cardBorder = 'border-2 border-gray-300 bg-gray-50/30';
+                        rBg = 'bg-gray-100';
+                        icBg = 'bg-gray-100 text-gray-600';
+                        timeBadge = 'text-gray-600 bg-gray-50 border-gray-200';
+                        usBadgeText = 'BOOKED';
+                        stausTextColor = 'text-gray-500';
+                        stusBadge = `<span
+                            class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-700 rounded-full border border-gray-300">${statusBadgeText}</span>`;
+                        }se if (isApproved) {
+                        // PPROVED - Orange
+                        caBorder = 'border-2 border-orange-300 bg-orange-50/30';
+                        drBg = 'bg-orange-100';
+                        iconBg = 'bg-orange-100 text-orange-600';
+                        Badge = 'text-orange-600 bg-orange-50 border-orange-200';
+                        stusBadgeText = 'DISETUJUI';
+                        statusTextColor = 'text-orange-600';
+                        usBadge = `<span
+                            class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-orange-100 text-orange-700 rounded-full border border-orange-300">${statusBadgeText}</span>`;
+                        } se {
+                        //vailable/default - Hijau
+                        cBorder = 'border-2 border-green-300 bg-green-50/30';
+                        decrBg = 'bg-green-100';
+                        icoBg = 'bg-green-100 text-green-600';
+                        tiBadge = 'text-green-600 bg-green-50 border-green-200';
+                        statusBadgeText = 'AVAILABLE';
+                        usTextColor = 'text-green-600';
+                        stausBadge = `<span
+                            class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-green-100 text-green-700 rounded-full border border-green-300">${statusBadgeText}</span>`;
+                        }
+
+                        rrn `
+                        <div
+                            class="bg-white rounded-xl p-3 ${cardBorder} hover:shadow-md transition-all group flex flex-col relative overflow-hidden">
+                            <!-- Decorative Element -->
+                            <div
+                                class="absolute top-0 right-0 w-16 h-16 ${decorBg} rounded-bl-[2.5rem] -mr-2 -mt-2 transition-transform group-hover:scale-110">
                             </div>
-                            <span class="text-[9px] font-bold ${statusTextColor}">${statusBadgeText}</span>
-                        </div>
-                    </div>
 
-                    <!-- Content -->
-                    <div class="relative z-10 space-y-1.5 flex-1">
-                        <!-- Room Name (Primary) -->
-                        <div>
-                            <p class="text-[9px] text-gray-400 uppercase font-semibold tracking-wide">Ruangan</p>
-                            <h4 class="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight">${namaRuangan}</h4>
-                        </div>
-                        
-                        <!-- Activity Name -->
-                        <div>
-                            <p class="text-[9px] text-gray-400 uppercase font-semibold tracking-wide">Kegiatan</p>
-                            <p class="text-xs font-medium text-gray-700">${namaKegiatan}</p>
-                        </div>
-                        
-                        <!-- Borrower Info with Organization -->
-                        <div class="pt-1.5 border-t border-dashed border-gray-100">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                    <span class="font-medium text-[11px]">${peminjam}</span>
+                            <!-- Header: Icon + Time Badge -->
+                            <div class="relative z-10 mb-2 flex items-start justify-between">
+                                <div class="w-8 h-8 ${iconBg} rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                        </path>
+                                    </svg>
                                 </div>
-                                <span class="px-1.5 py-0.5 text-[9px] font-bold bg-gray-100 text-gray-600 rounded border border-gray-200">${organisasi}</span>
+                                <div class="flex flex-col items-end gap-0.5">
+                                    <div
+                                        class="flex items-center gap-1 text-[11px] font-semibold ${timeBadge} px-2 py-0.5 rounded-md border">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        ${jamMulai} - ${jamSelesai}
+                                    </div>
+                                    <span class="text-[9px] font-bold ${statusTextColor}">${statusBadgeText}</span>
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="relative z-10 space-y-1.5 flex-1">
+                                <!-- Room Name (Primary) -->
+                                <div>
+                                    <p class="text-[9px] text-gray-400 uppercase font-semibold tracking-wide">Ruangan
+                                    </p>
+                                    <h4
+                                        class="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight">
+                                        ${namaRuangan}</h4>
+                                </div>
+
+                                <!-- Activity Name -->
+                                <div>
+                                    <p class="text-[9px] text-gray-400 uppercase font-semibold tracking-wide">Kegiatan
+                                    </p>
+                                    <p class="text-xs font-medium text-gray-700">${namaKegiatan}</p>
+                                </div>
+
+                                <!-- Borrower Info with Organization -->
+                                <div class="pt-1.5 border-t border-dashed border-gray-100">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                                </path>
+                                            </svg>
+                                            <span class="font-medium text-[11px]">${peminjam}</span>
+                                        </div>
+                                        <span
+                                            class="px-1.5 py-0.5 text-[9px] font-bold bg-gray-100 text-gray-600 rounded border border-gray-200">${organisasi}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
+                        `;
+                        }).oin('');
+                        }
 
-        window.changeMonth = (direction) => {
-            currentDate.setMonth(currentDate.getMonth() + direction);
-            renderCalendar();
-        };
+                        wow.changeMonth = (direction) => {
+                        currentDate.setMonth(currentDate.getMonth() + direction);
+                        erCalendar();
+                        };
 
-        // --- LOAD RUANGAN ---
-        async function loadRuangan() {
-            try {
-                const data = await apiCall('/ruangan');
-                const tbody = document.getElementById('ruangan-body');
-                if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-5 py-4 text-center text-gray-400 text-xs">Tidak ada data ruangan.</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = data.map((r) => `
-                    <tr class="hover:bg-orange-50/60 transition-colors group">
-                        <td class="px-5 py-3 font-mono text-xs text-gray-500 bg-orange-50/80 border-r w-20 group-hover:bg-orange-100">${r.kode_ruangan || '-'}</td>
-                        <td class="px-5 py-3 font-semibold text-gray-800 text-sm">${r.nama_ruangan || '-'}</td>
-                        <td class="px-5 py-3 text-gray-600 text-xs">${r.lokasi || '-'}</td>
-                        <td class="px-5 py-3 text-center"><span class="inline-block bg-orange-50 text-orange-700 px-2 py-1 rounded-md text-[10px] font-bold border border-orange-100">${r.kapasitas || '0'} Org</span></td>
-                    </tr>`).join('');
-            } catch (error) {
-                document.getElementById('ruangan-body').innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500 text-xs">Gagal memuat data.</td></tr>';
-            }
-        }
+                        // --- LOAD RUANGAN ---
+                        c function loadRuangan() {
+                        tr{
+                        cot data = await apiCall('/ruangan');
+                        ct tbody = document.getElementById('ruangan-body');
+                        if !Array.isArray(data) || data.length === 0) {
+                        tby.innerHTML = '<tr>
+                            <td colspan="4" class="px-5 py-4 text-center text-gray-400 text-xs">Tidak ada data ruangan.
+                            </td>
+                        </tr>';
+                        rrn;
+                        }
+                        tboy.innerHTML = data.map((r) => `
+                        <tr class="hover:bg-orange-50/60 transition-colors group">
+                            <td
+                                class="px-5 py-3 font-mono text-xs text-gray-500 bg-orange-50/80 border-r w-20 group-hover:bg-orange-100">
+                                ${r.kode_ruangan || '-'}</td>
+                            <td class="px-5 py-3 font-semibold text-gray-800 text-sm">${r.nama_ruangan || '-'}</td>
+                            <td class="px-5 py-3 text-gray-600 text-xs">${r.lokasi || '-'}</td>
+                            <td class="px-5 py-3 text-center"><span
+                                    class="inline-block bg-orange-50 text-orange-700 px-2 py-1 rounded-md text-[10px] font-bold border border-orange-100">${r.kapasitas
+                                    || '0'} Org</span></td>
+                        </tr>`).join('');
+                        } tch (error) {
+                        document.getElementById('ruangan-body').innerHTML = '<tr>
+                            <td colspan="4" class="text-center py-4 text-red-500 text-xs">Gagal memuat data.</td>
+                        </tr>';
 
-        // --- LOAD BARANG ---
-        async function loadBarang() {
-            try {
-                const data = await apiCall('/barang');
-                const tbody = document.getElementById('barang-body');
-                if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="px-5 py-4 text-center text-gray-400 text-xs">Tidak ada data barang.</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = data.map((b) => `
-                    <tr class="hover:bg-orange-50/60 transition-colors">
-                        <td class="px-5 py-3 font-mono text-xs text-gray-500 bg-orange-50/80 border-r w-24">${b.kode_barang || '-'}</td>
-                        <td class="px-5 py-3 font-semibold text-gray-800 text-sm">${b.nama_barang || '-'}</td>
-                        <td class="px-5 py-3 text-gray-600 text-sm">${b.deskripsi || '-'}</td>
-                    </tr>`).join('');
-            } catch (error) {
-                document.getElementById('barang-body').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500 text-xs">Gagal memuat barang.</td></tr>';
-            }
-        }
+                        }
 
-        // Init
-        loadPeminjaman();
-        fetchSchedules();
-        loadRuangan();
-        loadBarang();
-    </script>
+                        //-- LOAD BARANG ---
+                        ac function loadBarang() {
+                        try {
+                        t data = await apiCall('/barang');
+                        cot tbody = document.getElementById('barang-body');
+                        if (!Array.isArray(data) || data.length === 0) {
+                        y.innerHTML = '<tr>
+                            <td colspan="3" class="px-5 py-4 text-center text-gray-400 text-xs">Tidak ada data barang.
+                            </td>
+                        </tr>';
+                        rern;
+                        }
+                        ty.innerHTML = data.map((b) => `
+                        <tr class="hover:bg-orange-50/60 transition-colors">
+                            <td class="px-5 py-3 font-mono text-xs text-gray-500 bg-orange-50/80 border-r w-24">
+                                ${b.kode_barang || '-'}</td>
+                            <td class="px-5 py-3 font-semibold text-gray-800 text-sm">${b.nama_barang || '-'}</td>
+                            <td class="px-5 py-3 text-gray-600 text-sm">${b.deskripsi || '-'}</td>
+                        </tr>`).join('');
+                        } ctch (error) {
+                        doment.getElementById('barang-body').innerHTML = '<tr>
+                            <td colspan="3" class="text-center py-4 text-red-500 text-xs">Gagal memuat barang.</td>
+                        </tr>';
+                        }
+                        }
+
+                        // nit
+                        loPeminjaman();
+                        fetchSchedules();
+                        Ruangan();
+                        loBarang();
+                        </script>
 </body>
 
 </html>
