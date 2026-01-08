@@ -359,6 +359,20 @@
     <script>
         checkAuth();
 
+        // Helper function to parse ISO date string without timezone conversion
+        function parseAsLocalTime(isoString) {
+            if (!isoString) return null;
+            const localStr = isoString.replace('Z', '');
+            const [datePart, timePart] = localStr.split('T');
+            const [year, month, day] = datePart.split('-').map(Number);
+            let hours = 0, minutes = 0;
+            if (timePart) {
+                const timeOnly = timePart.split(/[+-]/)[0];
+                [hours, minutes] = timeOnly.split(':').map(Number);
+            }
+            return new Date(year, month - 1, day, hours, minutes);
+        }
+
         // Elements
         const pageTitle = document.getElementById('pageTitle');
         const pageSubtitle = document.getElementById('pageSubtitle');
@@ -499,11 +513,11 @@
                             };
                         } else if (p.status === 'ONGOING') {
                             theme = {
-                                bgIcon: 'bg-blue-100 text-blue-600',
-                                deco: 'bg-blue-50',
-                                hoverBorder: 'hover:border-blue-200',
-                                statusBadge: '<span class="px-3 py-1 bg-blue-500/10 text-blue-600 text-xs font-bold rounded-full border border-blue-500/20 animate-pulse">BERLANGSUNG</span>',
-                                btnClass: 'bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50',
+                                bgIcon: 'bg-red-100 text-red-600',
+                                deco: 'bg-red-50',
+                                hoverBorder: 'hover:border-red-300',
+                                statusBadge: '<span class="px-3 py-1 bg-red-500/10 text-red-600 text-xs font-bold rounded-full border border-red-500/20 flex items-center gap-1"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>BERLANGSUNG</span>',
+                                btnClass: 'bg-white border-2 border-red-500 text-red-600 hover:bg-red-50',
                                 btnText: 'Kelola / Batalkan'
                             };
                         }
@@ -516,11 +530,12 @@
                     const title = isRuangan ? p.ruangan.nama_ruangan : 'Peminjaman Barang';
                     const subtitle = p.kegiatan?.nama_kegiatan || 'Tidak ada detail kegiatan';
                     const peminjam = p.peminjam ? p.peminjam.nama : 'Unknown';
-                    const start = new Date(p.tanggal_mulai);
-                    const end = new Date(p.tanggal_selesai);
-                    const dateRange = start.toDateString() === end.toDateString()
-                        ? `${start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} • ${start.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
-                        : `${start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} - ${end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                    const organisasiKode = p.peminjam?.organisasi_kode || '-';
+                    const start = parseAsLocalTime(p.tanggal_mulai);
+                    const end = parseAsLocalTime(p.tanggal_selesai);
+                    const dateRange = start && end && start.toDateString() === end.toDateString()
+                        ? `${start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} • ${start.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })}`
+                        : start ? `${start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} ${start.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end?.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) || '-'} ${end?.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) || ''}` : '-';
                     const submittedTime = formatRelativeTime(p.created_at);
 
                     return `
@@ -542,6 +557,9 @@
                                 <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                     ${peminjam}
+                                </span>
+                                <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 font-bold">
+                                    ${organisasiKode}
                                 </span>
                                 <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>

@@ -14,9 +14,27 @@ const formatDateKey = (year, month, day) => {
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 };
 
+// Helper function to parse ISO date string without timezone conversion
+// This ensures "2026-01-30T07:00:00Z" is displayed as "30 Januari 2026 07:00"
+const parseAsLocalTime = (isoString) => {
+    if (!isoString) return null;
+    // Remove "Z" suffix and parse as local time
+    const localStr = isoString.replace('Z', '');
+    const [datePart, timePart] = localStr.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    let hours = 0, minutes = 0;
+    if (timePart) {
+        const timeOnly = timePart.split(/[+-]/)[0]; // Remove timezone offset if any
+        [hours, minutes] = timeOnly.split(':').map(Number);
+    }
+    return new Date(year, month - 1, day, hours, minutes);
+};
+
 const formatTime = (dateString) => {
     if (!dateString) return '--:--';
-    return new Date(dateString).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+    const date = parseAsLocalTime(dateString);
+    if (!date) return '--:--';
+    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
 // --- LOGIC: JADWAL & KALENDER ---
@@ -150,10 +168,20 @@ const showScheduleForDate = (day, month, year) => {
         const status = j.status || 'APPROVED';
         const isPending = j.is_pending || status === 'PENDING';
         const isApproved = status === 'APPROVED';
+        const isOngoing = status === 'ONGOING';
 
-        let cardBorder, decorBg, iconBg, timeBadge, statusBadgeText, statusTextColor;
+        let cardBorder, decorBg, iconBg, timeBadge, statusBadgeText, statusTextColor, liveIcon;
 
-        if (isPending) {
+        if (isOngoing) {
+            // ONGOING - Merah dengan ikon live kedap-kedip
+            cardBorder = 'border-2 border-red-400 bg-red-50/30';
+            decorBg = 'bg-red-100';
+            iconBg = 'bg-red-100 text-red-600';
+            timeBadge = 'text-red-600 bg-red-50 border-red-200';
+            statusBadgeText = 'BERLANGSUNG';
+            statusTextColor = 'text-red-600';
+            liveIcon = `<span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse-live mr-1"></span>`;
+        } else if (isPending) {
             // PENDING - Abu-abu
             cardBorder = 'border-2 border-gray-300 bg-gray-50/30';
             decorBg = 'bg-gray-100';
@@ -161,6 +189,7 @@ const showScheduleForDate = (day, month, year) => {
             timeBadge = 'text-gray-600 bg-gray-50 border-gray-200';
             statusBadgeText = 'BOOKED';
             statusTextColor = 'text-gray-500';
+            liveIcon = '';
         } else if (isApproved) {
             // APPROVED - Orange
             cardBorder = 'border-2 border-orange-300 bg-orange-50/30';
@@ -169,6 +198,7 @@ const showScheduleForDate = (day, month, year) => {
             timeBadge = 'text-orange-600 bg-orange-50 border-orange-200';
             statusBadgeText = 'DISETUJUI';
             statusTextColor = 'text-orange-600';
+            liveIcon = '';
         } else {
             // Fallback
             cardBorder = 'border-2 border-green-300 bg-green-50/30';
@@ -177,6 +207,7 @@ const showScheduleForDate = (day, month, year) => {
             timeBadge = 'text-green-600 bg-green-50 border-green-200';
             statusBadgeText = 'AVAILABLE';
             statusTextColor = 'text-green-600';
+            liveIcon = '';
         }
 
         return `
@@ -194,7 +225,7 @@ const showScheduleForDate = (day, month, year) => {
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         ${jamMulai} - ${jamSelesai}
                     </div>
-                    <span class="text-[9px] font-bold ${statusTextColor}">${statusBadgeText}</span>
+                    <span class="text-[9px] font-bold ${statusTextColor} flex items-center">${liveIcon}${statusBadgeText}</span>
                 </div>
             </div>
 

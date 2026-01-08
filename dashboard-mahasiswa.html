@@ -20,6 +20,23 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Blinking animation for ONGOING live indicator */
+        @keyframes pulse-live {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .animate-pulse-live {
+            animation: pulse-live 1.2s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -560,7 +577,8 @@
                         const statusTheme = {
                             'PENDING': { bg: 'bg-yellow-100 text-yellow-600', badge: 'bg-yellow-400/10 text-yellow-600 border-yellow-400/20', deco: 'bg-yellow-50' },
                             'APPROVED': { bg: 'bg-green-100 text-green-600', badge: 'bg-green-50 text-green-600 border-green-200', deco: 'bg-green-50' },
-                            'REJECTED': { bg: 'bg-red-100 text-red-600', badge: 'bg-red-50 text-red-600 border-red-200', deco: 'bg-red-50' },
+                            'ONGOING': { bg: 'bg-red-100 text-red-600', badge: 'bg-red-50 text-red-600 border-red-200', deco: 'bg-red-50' },
+                            'REJECTED': { bg: 'bg-gray-100 text-gray-600', badge: 'bg-gray-50 text-gray-600 border-gray-200', deco: 'bg-gray-50' },
                             'FINISHED': { bg: 'bg-blue-100 text-blue-600', badge: 'bg-blue-50 text-blue-600 border-blue-200', deco: 'bg-blue-50' }
                         };
                         const theme = statusTheme[p.status] || { bg: 'bg-gray-100 text-gray-600', badge: 'bg-gray-50 text-gray-600 border-gray-200', deco: 'bg-gray-50' };
@@ -638,7 +656,8 @@
             const colors = {
                 'PENDING': 'bg-yellow-50 text-yellow-700 border-yellow-200',
                 'APPROVED': 'bg-green-50 text-green-700 border-green-200',
-                'REJECTED': 'bg-red-50 text-red-700 border-red-200',
+                'ONGOING': 'bg-red-50 text-red-700 border-red-200',
+                'REJECTED': 'bg-gray-50 text-gray-700 border-gray-200',
                 'FINISHED': 'bg-blue-50 text-blue-700 border-blue-200'
             };
             return colors[status] || 'bg-gray-50 text-gray-700 border-gray-200';
@@ -648,7 +667,8 @@
             const colors = {
                 'PENDING': 'border-yellow-400',
                 'APPROVED': 'border-green-400',
-                'REJECTED': 'border-red-400',
+                'ONGOING': 'border-red-400',
+                'REJECTED': 'border-gray-400',
                 'FINISHED': 'border-blue-400'
             };
             return colors[status] || 'border-gray-400';
@@ -836,14 +856,24 @@
                 const status = j.status || 'APPROVED';
                 const isPending = j.is_pending || status === 'PENDING';
                 const isApproved = status === 'APPROVED';
+                const isOngoing = status === 'ONGOING';
 
                 // Palet warna status:
                 // - PENDING: Abu-abu
                 // - APPROVED: Orange
-                // - Available/default: Hijau (tidak digunakan di sini karena ini adalah jadwal yang sudah ada)
-                let cardBorder, decorBg, iconBg, timeBadge, statusBadge, statusBadgeText, statusTextColor;
+                // - ONGOING: Merah dengan ikon live kedap-kedip
+                let cardBorder, decorBg, iconBg, timeBadge, statusBadge, statusBadgeText, statusTextColor, liveIcon;
 
-                if (isPending) {
+                if (isOngoing) {
+                    // ONGOING - Merah dengan ikon live kedap-kedip
+                    cardBorder = 'border-2 border-red-400 bg-red-50/30';
+                    decorBg = 'bg-red-100';
+                    iconBg = 'bg-red-100 text-red-600';
+                    timeBadge = 'text-red-600 bg-red-50 border-red-200';
+                    statusBadgeText = 'BERLANGSUNG';
+                    statusTextColor = 'text-red-600';
+                    liveIcon = `<span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse-live mr-1"></span>`;
+                } else if (isPending) {
                     // PENDING - Abu-abu
                     cardBorder = 'border-2 border-gray-300 bg-gray-50/30';
                     decorBg = 'bg-gray-100';
@@ -851,7 +881,7 @@
                     timeBadge = 'text-gray-600 bg-gray-50 border-gray-200';
                     statusBadgeText = 'BOOKED';
                     statusTextColor = 'text-gray-500';
-                    statusBadge = `<span class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-700 rounded-full border border-gray-300">${statusBadgeText}</span>`;
+                    liveIcon = '';
                 } else if (isApproved) {
                     // APPROVED - Orange
                     cardBorder = 'border-2 border-orange-300 bg-orange-50/30';
@@ -860,7 +890,7 @@
                     timeBadge = 'text-orange-600 bg-orange-50 border-orange-200';
                     statusBadgeText = 'DISETUJUI';
                     statusTextColor = 'text-orange-600';
-                    statusBadge = `<span class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-orange-100 text-orange-700 rounded-full border border-orange-300">${statusBadgeText}</span>`;
+                    liveIcon = '';
                 } else {
                     // Available/default - Hijau
                     cardBorder = 'border-2 border-green-300 bg-green-50/30';
@@ -869,7 +899,7 @@
                     timeBadge = 'text-green-600 bg-green-50 border-green-200';
                     statusBadgeText = 'AVAILABLE';
                     statusTextColor = 'text-green-600';
-                    statusBadge = `<span class="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold bg-green-100 text-green-700 rounded-full border border-green-300">${statusBadgeText}</span>`;
+                    liveIcon = '';
                 }
 
                 return `
@@ -887,7 +917,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 ${jamMulai} - ${jamSelesai}
                             </div>
-                            <span class="text-[9px] font-bold ${statusTextColor}">${statusBadgeText}</span>
+                            <span class="text-[9px] font-bold ${statusTextColor} flex items-center">${liveIcon}${statusBadgeText}</span>
                         </div>
                     </div>
 

@@ -39,6 +39,23 @@
             border-color: transparent;
             box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.35);
         }
+
+        /* Blinking animation for ONGOING live indicator */
+        @keyframes pulse-live {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .animate-pulse-live {
+            animation: pulse-live 1.2s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -360,9 +377,27 @@
             return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         };
 
+        // Helper function to parse ISO date string without timezone conversion
+        // This ensures "2026-01-30T07:00:00Z" is displayed as "30 Januari 2026 07:00"
+        const parseAsLocalTime = (isoString) => {
+            if (!isoString) return null;
+            // Remove "Z" suffix and parse as local time
+            const localStr = isoString.replace('Z', '');
+            const [datePart, timePart] = localStr.split('T');
+            const [year, month, day] = datePart.split('-').map(Number);
+            let hours = 0, minutes = 0;
+            if (timePart) {
+                const timeOnly = timePart.split(/[+-]/)[0]; // Remove timezone offset if any
+                [hours, minutes] = timeOnly.split(':').map(Number);
+            }
+            return new Date(year, month - 1, day, hours, minutes);
+        };
+
         const formatTime = (dateString) => {
             if (!dateString) return '--:--';
-            return new Date(dateString).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            const date = parseAsLocalTime(dateString);
+            if (!date) return '--:--';
+            return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
         };
 
         const fetchCalendarSchedules = async () => {
@@ -448,7 +483,7 @@
             const dateObj = new Date(year, month, day);
             if (selectedDateLabel) {
                 selectedDateLabel.innerText = dateObj.toLocaleDateString('id-ID', {
-                    weekday: 'long', day: 'numeric', month: 'short', year: 'numeric'
+                    weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta'
                 });
             }
 
@@ -478,10 +513,20 @@
                 const status = j.status || 'APPROVED';
                 const isPending = j.is_pending || status === 'PENDING';
                 const isApproved = status === 'APPROVED';
+                const isOngoing = status === 'ONGOING';
 
-                let cardBorder, decorBg, iconBg, timeBadge, statusBadgeText, statusTextColor;
+                let cardBorder, decorBg, iconBg, timeBadge, statusBadgeText, statusTextColor, liveIcon;
 
-                if (isPending) {
+                if (isOngoing) {
+                    // ONGOING - Merah dengan ikon live kedap-kedip
+                    cardBorder = 'border-2 border-red-400 bg-red-50/30';
+                    decorBg = 'bg-red-100';
+                    iconBg = 'bg-red-100 text-red-600';
+                    timeBadge = 'text-red-600 bg-red-50 border-red-200';
+                    statusBadgeText = 'BERLANGSUNG';
+                    statusTextColor = 'text-red-600';
+                    liveIcon = `<span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse-live mr-1"></span>`;
+                } else if (isPending) {
                     // PENDING - Abu-abu
                     cardBorder = 'border-2 border-gray-300 bg-gray-50/30';
                     decorBg = 'bg-gray-100';
@@ -489,6 +534,7 @@
                     timeBadge = 'text-gray-600 bg-gray-50 border-gray-200';
                     statusBadgeText = 'BOOKED';
                     statusTextColor = 'text-gray-500';
+                    liveIcon = '';
                 } else if (isApproved) {
                     // APPROVED - Orange
                     cardBorder = 'border-2 border-orange-300 bg-orange-50/30';
@@ -497,6 +543,7 @@
                     timeBadge = 'text-orange-600 bg-orange-50 border-orange-200';
                     statusBadgeText = 'DISETUJUI';
                     statusTextColor = 'text-orange-600';
+                    liveIcon = '';
                 } else {
                     // Fallback
                     cardBorder = 'border-2 border-green-300 bg-green-50/30';
@@ -505,6 +552,7 @@
                     timeBadge = 'text-green-600 bg-green-50 border-green-200';
                     statusBadgeText = 'AVAILABLE';
                     statusTextColor = 'text-green-600';
+                    liveIcon = '';
                 }
 
                 return `
@@ -522,7 +570,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 ${jamMulai} - ${jamSelesai}
                             </div>
-                            <span class="text-[9px] font-bold ${statusTextColor}">${statusBadgeText}</span>
+                            <span class="text-[9px] font-bold ${statusTextColor} flex items-center">${liveIcon}${statusBadgeText}</span>
                         </div>
                     </div>
 
@@ -571,8 +619,9 @@
 
         // Helper function to format date range
         function formatDateRange(start, end) {
-            const startDate = new Date(start);
-            const endDate = new Date(end);
+            const startDate = parseAsLocalTime(start);
+            const endDate = parseAsLocalTime(end);
+            if (!startDate || !endDate) return '-';
 
             const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
             const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
@@ -605,10 +654,13 @@
             };
             const theme = statusTheme[p.status] || { bg: 'bg-gray-100 text-gray-600', badge: 'bg-gray-50 text-gray-600 border-gray-200', deco: 'bg-gray-50', border: 'border-gray-200' };
 
-            // Format time range
-            const startTime = new Date(p.tanggal_mulai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-            const endTime = new Date(p.tanggal_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-            const timeRange = `${startTime} - ${endTime}`;
+            // Format date and time range
+            const startDate = parseAsLocalTime(p.tanggal_mulai);
+            const endDate = parseAsLocalTime(p.tanggal_selesai);
+            const dateStr = startDate ? startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+            const startTime = startDate ? startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+            const endTime = endDate ? endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+            const dateTimeRange = `${dateStr} • ${startTime} - ${endTime}`;
 
             // Get data
             const ruanganName = p.ruangan?.nama_ruangan || 'Peminjaman Barang';
@@ -636,48 +688,51 @@
             <div class="bg-white rounded-3xl p-6 border-2 ${theme.border} hover:border-orange-200 transition-all hover:shadow-lg group flex flex-col h-full relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-24 h-24 ${theme.deco} rounded-bl-[4rem] -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
                 
-                <!-- Header Row: Icon, Time Badge, Status -->
+                <!-- Header Row: Icon, Date/Time Badge, Status -->
                 <div class="relative z-10 mb-4 flex items-start justify-between">
                     <div class="w-12 h-12 ${theme.bg} rounded-2xl flex items-center justify-center">
                         ${icon}
                     </div>
                     <div class="flex flex-col items-end gap-1.5">
-                        <span class="inline-flex items-center text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            ${timeRange}
+                        <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            ${dateTimeRange}
                         </span>
-                        <span class="px-2.5 py-1 ${theme.badge} text-[10px] font-bold rounded-lg border">${statusLabel}</span>
+                        <span class="px-3 py-1 ${theme.badge} text-xs font-bold rounded-full border">${statusLabel}</span>
                     </div>
                 </div>
 
                 <!-- Content -->
-                <div class="relative z-10 space-y-3 mb-4 flex-1">
+                <div class="relative z-10 space-y-2 mb-4 flex-1">
                     <!-- Ruangan -->
                     <div>
-                        <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Ruangan</p>
-                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors">${ruanganName}</h4>
+                        <p class="text-xs text-gray-400 uppercase font-semibold tracking-wide">Ruangan</p>
+                        <h3 class="text-xl font-bold text-gray-900 group-hover:text-gray-800">${ruanganName}</h3>
                     </div>
                     
                     <!-- Kegiatan -->
                     <div>
-                        <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Kegiatan</p>
-                        <p class="text-sm font-medium text-gray-700">${kegiatanName}</p>
+                        <p class="text-xs text-gray-400 uppercase font-semibold tracking-wide">Kegiatan</p>
+                        <p class="text-sm text-gray-500">${kegiatanName}</p>
                     </div>
                     
                     <!-- Peminjam & Organisasi -->
-                    <div class="pt-2 border-t border-dashed border-gray-100 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-1.5 text-sm text-gray-600">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            <span class="font-medium">${peminjamName}</span>
-                        </div>
-                        <span class="px-2 py-0.5 text-[10px] font-bold bg-gray-100 text-gray-600 rounded border border-gray-200">${organisasiKode}</span>
+                    <div class="pt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            ${peminjamName}
+                        </span>
+                        <span class="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            ${organisasiKode}
+                        </span>
                     </div>
                 </div>
 
                 <!-- Action Button -->
                 <button onclick="openModal('${p.kode_peminjaman}')" class="relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-lg shadow-orange-200/50 hover:shadow-orange-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Verifikasi Kehadiran
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
             </div>
             `;
@@ -994,7 +1049,7 @@
             const date = window.currentlySelectedDate || new Date();
             const dateKey = formatDateKey(date.getFullYear(), date.getMonth(), date.getDate());
 
-            dateLabel.textContent = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            dateLabel.textContent = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
             container.innerHTML = '<div class="col-span-full text-center py-10 text-gray-500 font-medium">Memuat data ketersediaan...</div>';
 
             try {
@@ -1013,7 +1068,7 @@
 
                 container.innerHTML = ruanganRes.map(room => {
                     const globalBookings = daySchedules.filter(s => s.kode_ruangan === room.kode_ruangan);
-                    globalBookings.sort((a, b) => new Date(a.tanggal_mulai) - new Date(b.tanggal_mulai));
+                    globalBookings.sort((a, b) => a.tanggal_mulai.localeCompare(b.tanggal_mulai));
 
                     let contentHtml = '';
 
@@ -1025,8 +1080,10 @@
                             </div>`;
                     } else {
                         contentHtml = `<div class="mt-3 space-y-2">` + globalBookings.map(booking => {
-                            const start = new Date(booking.tanggal_mulai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
-                            const end = new Date(booking.tanggal_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+                            const startDate = parseAsLocalTime(booking.tanggal_mulai);
+                            const endDate = parseAsLocalTime(booking.tanggal_selesai);
+                            const start = startDate ? startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+                            const end = endDate ? endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
 
                             const status = booking.status || 'APPROVED';
                             const isPending = status === 'PENDING';

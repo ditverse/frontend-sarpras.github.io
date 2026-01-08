@@ -24,6 +24,23 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Blinking animation for ONGOING live indicator */
+    @keyframes pulse-live {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .animate-pulse-live {
+      animation: pulse-live 1.2s ease-in-out infinite;
+    }
   </style>
 </head>
 
@@ -270,6 +287,8 @@
         <div class="flex items-center gap-1.5 whitespace-nowrap"><span
             class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Disetujui (Oren)</div>
         <div class="flex items-center gap-1.5 whitespace-nowrap"><span
+            class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse-live"></span> Berlangsung (Merah)</div>
+        <div class="flex items-center gap-1.5 whitespace-nowrap"><span
             class="w-2.5 h-2.5 rounded-full bg-green-500"></span> Tersedia (Hijau)</div>
         <div class="flex items-center gap-1.5 whitespace-nowrap"><span
             class="w-2.5 h-2.5 rounded-full bg-gray-400"></span> Booked (Abu)</div>
@@ -297,6 +316,22 @@
 </div>
 
 <script>
+  // Helper function to parse ISO date string without timezone conversion
+  // This ensures "2026-01-30T07:00:00Z" is displayed as "30 Januari 2026 07:00"
+  function parseAsLocalTime(isoString) {
+    if (!isoString) return null;
+    // Remove "Z" suffix and parse as local time
+    const localStr = isoString.replace('Z', '');
+    const [datePart, timePart] = localStr.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    let hours = 0, minutes = 0;
+    if (timePart) {
+      const timeOnly = timePart.split(/[+-]/)[0]; // Remove timezone offset if any
+      [hours, minutes] = timeOnly.split(':').map(Number);
+    }
+    return new Date(year, month - 1, day, hours, minutes);
+  }
+
   async function showAvailableRooms() {
     const modal = document.getElementById('modalAvailableRooms');
     const container = document.getElementById('availableRoomsContainer');
@@ -327,7 +362,7 @@
 
       container.innerHTML = ruanganRes.map(room => {
         const globalBookings = daySchedules.filter(s => s.kode_ruangan === room.kode_ruangan);
-        globalBookings.sort((a, b) => new Date(a.tanggal_mulai) - new Date(b.tanggal_mulai));
+        globalBookings.sort((a, b) => a.tanggal_mulai.localeCompare(b.tanggal_mulai));
 
         let contentHtml = '';
 
@@ -339,15 +374,29 @@
                         </div>`;
         } else {
           contentHtml = `<div class="mt-3 space-y-2">` + globalBookings.map(booking => {
-            const start = new Date(booking.tanggal_mulai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
-            const end = new Date(booking.tanggal_selesai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            const startDate = parseAsLocalTime(booking.tanggal_mulai);
+            const endDate = parseAsLocalTime(booking.tanggal_selesai);
+            const start = startDate ? startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+            const end = endDate ? endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
 
             const status = booking.status || 'APPROVED';
             const isPending = status === 'PENDING';
+            const isOngoing = status === 'ONGOING';
 
-            const bgClass = isPending ? 'bg-gray-50 border-gray-200 text-gray-600' : 'bg-orange-50 border-orange-100 text-orange-700';
-            const dotClass = isPending ? 'bg-gray-400' : 'bg-orange-500';
-            const label = isPending ? 'BOOKED (PENDING)' : 'DISETUJUI';
+            let bgClass, dotClass, label;
+            if (isOngoing) {
+              bgClass = 'bg-red-50 border-red-200 text-red-700';
+              dotClass = 'bg-red-500 animate-pulse-live';
+              label = 'BERLANGSUNG';
+            } else if (isPending) {
+              bgClass = 'bg-gray-50 border-gray-200 text-gray-600';
+              dotClass = 'bg-gray-400';
+              label = 'BOOKED (PENDING)';
+            } else {
+              bgClass = 'bg-orange-50 border-orange-100 text-orange-700';
+              dotClass = 'bg-orange-500';
+              label = 'DISETUJUI';
+            }
 
             return `
                             <div class="flex items-center justify-between px-3 py-2 rounded-lg border ${bgClass}">
